@@ -1185,7 +1185,7 @@
     "@noble/hashes" "~1.8.0"
     "@scure/base" "~1.2.5"
 
-"@skalenetwork/bite@^0.4.1-beta.1":
+"@skalenetwork/bite@^0.4.1-beta.2":
   version "0.4.1-beta.2"
   resolved "https://registry.yarnpkg.com/@skalenetwork/bite/-/bite-0.4.1-beta.2.tgz#a6bb54476b30a4156368db144a57b6dd2159b598"
   integrity sha512-TknRHvoaD19qUkWXJGRtylftIwnmzj9KGKvVieQxmARrTcFntuK10MlL8JSckYx91nFQ9LA5y+zbpgs+18mlPw==

@@ -4,14 +4,14 @@ import {
   useWaitForTransactionReceipt,
   useChainId,
   useWalletClient,
-  usePublicClient,
+  usePublicClient
 } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import TokenSelector from "./TokenSelector";
 import { getTokens, getRouter } from "../config/config";
 import { ERC20_ABI } from "../abi/ERC20";
 import { UNISWAP_V2_ROUTER_ABI } from "../abi/UniswapV2Router";
-import { readContract, writeContract } from "../web3/requests";
+import { readContract, writeContract } from "../web3/requests"
 
 interface Token {
   address: `0x${string}`;
@@ -55,13 +55,13 @@ const Swap: React.FC = () => {
     const fetchAllowance = async () => {
       if (publicClient && fromToken && router && address) {
         try {
-          const result = (await readContract(
+          const result = await readContract(
             publicClient,
             ERC20_ABI,
             fromToken.address,
             "allowance",
             [address, router]
-          )) as bigint;
+          ) as bigint;
           setAllowance(result);
         } catch (error) {
           console.error("Error fetching allowance:", error);
@@ -77,13 +77,13 @@ const Swap: React.FC = () => {
     const fetchBalance = async () => {
       if (publicClient && fromToken && address) {
         try {
-          const result = (await readContract(
+          const result = await readContract(
             publicClient,
             ERC20_ABI,
             fromToken.address,
             "balanceOf",
             [address]
-          )) as bigint;
+          ) as bigint;
           setBalance(result);
         } catch (error) {
           console.error("Error fetching balance:", error);
@@ -99,13 +99,13 @@ const Swap: React.FC = () => {
     const fetchBalanceTo = async () => {
       if (publicClient && toToken && address) {
         try {
-          const result = (await readContract(
+          const result = await readContract(
             publicClient,
             ERC20_ABI,
             toToken.address,
             "balanceOf",
             [address]
-          )) as bigint;
+          ) as bigint;
           setBalanceTo(result);
         } catch (error) {
           console.error("Error fetching balance:", error);
@@ -121,7 +121,7 @@ const Swap: React.FC = () => {
     const fetchAmountsOut = async () => {
       if (publicClient && router && fromAmount && fromToken && toToken) {
         try {
-          const result = (await readContract(
+          const result = await readContract(
             publicClient,
             UNISWAP_V2_ROUTER_ABI,
             router,
@@ -130,7 +130,7 @@ const Swap: React.FC = () => {
               parseUnits(fromAmount, fromToken.decimals),
               [fromToken.address, toToken.address],
             ]
-          )) as readonly bigint[];
+          ) as readonly bigint[];
           setAmountsOut(result);
         } catch (error) {
           console.error("Error fetching amounts out:", error);
@@ -173,6 +173,7 @@ const Swap: React.FC = () => {
   const handleApprove = async () => {
     if (!fromToken || !fromAmount || !router || !walletClient) return;
 
+    
     try {
       setIsConfirming(true);
       const txHash = await writeContract(
@@ -226,23 +227,6 @@ const Swap: React.FC = () => {
       setHash(txHash);
     } catch (error) {
       console.error("Error swapping tokens:", error);
-
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
-      }
-
-      // Sometimes viem/ethers returns a `cause` or nested `error`
-      if ((error as any).cause) {
-        console.error("Cause:", (error as any).cause);
-      }
-      if ((error as any).data) {
-        console.error("Error data:", (error as any).data);
-      }
-      if ((error as any).error) {
-        console.error("Inner error:", (error as any).error);
-      }
-
       setIsConfirming(false);
     }
   };

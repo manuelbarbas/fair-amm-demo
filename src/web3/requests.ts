@@ -25,30 +25,23 @@ export async function writeContract(walletClient: WalletClient,contractABI: Abi,
     args: args
   });
 
-
   const bite = new BITE(walletClient.chain?.rpcUrls.default.http[0] || "");
 
   const transaction = {
     to: contractAddress,
     data: data,
-    gasLimit: "100000000"
   };
 
-    console.log("to ", transaction.to);
-  console.log("data ", transaction.data);
-
-
   const encryptedTransaction = await bite.encryptTransaction(transaction);
-
-  console.log("encryptedTransaction.to ", encryptedTransaction.to);
-  console.log("encryptedTransaction.data ", encryptedTransaction.data);
 
   const tx = await walletClient.sendTransaction({
     account: walletClient.account,
     to: encryptedTransaction.to as `0x${string}`,
     data: encryptedTransaction.data as `0x${string}`,
     value: 0n,
-    gasLimit: transaction.gasLimit,
+    gas: encryptedTransaction.gasLimit
+    ? BigInt(encryptedTransaction.gasLimit)
+    : undefined,
     chain: walletClient.chain
   });
 
