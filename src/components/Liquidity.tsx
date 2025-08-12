@@ -420,9 +420,7 @@ const Liquidity: React.FC = () => {
         </div>
       </div>
 
-      {!address ? (
-        <w3m-button />
-      ) : needsApproval() ? (
+      {needsApproval() ? (
         <div className="approval-buttons">
           {tokenA &&
             !isNativeWrappedToken(tokenA.symbol) &&

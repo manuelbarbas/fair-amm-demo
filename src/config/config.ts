@@ -148,6 +148,7 @@ export const getAllTokensWithChain = () => {
 import fairTokenIcon from '../assets/fair_token.png'
 import sklTokenIcon from '../assets/skl_token.png'
 import usdcTokenIcon from '../assets/usdc_token.png'
+import usdtTokenIcon from '../assets/usdt_token.png'
 
 // Dynamic token icon mapping
 export const getTokenIcon = (symbol: string): string => {
@@ -156,6 +157,7 @@ export const getTokenIcon = (symbol: string): string => {
     'WBITE': fairTokenIcon,
     'SKL': sklTokenIcon,
     'USDC': usdcTokenIcon,
+    'USDT': usdtTokenIcon,
   }
   
   return iconMap[symbol] || fairTokenIcon // fallback

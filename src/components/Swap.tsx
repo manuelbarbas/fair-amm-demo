@@ -4,14 +4,14 @@ import {
   useWaitForTransactionReceipt,
   useChainId,
   useWalletClient,
-  usePublicClient
+  usePublicClient,
 } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import TokenSelector from "./TokenSelector";
 import { getTokens, getRouter } from "../config/config";
 import { ERC20_ABI } from "../abi/ERC20";
 import { UNISWAP_V2_ROUTER_ABI } from "../abi/UniswapV2Router";
-import { readContract, writeContract } from "../web3/requests"
+import { readContract, writeContract } from "../web3/requests";
 
 interface Token {
   address: `0x${string}`;
@@ -55,13 +55,13 @@ const Swap: React.FC = () => {
     const fetchAllowance = async () => {
       if (publicClient && fromToken && router && address) {
         try {
-          const result = await readContract(
+          const result = (await readContract(
             publicClient,
             ERC20_ABI,
             fromToken.address,
             "allowance",
             [address, router]
-          ) as bigint;
+          )) as bigint;
           setAllowance(result);
         } catch (error) {
           console.error("Error fetching allowance:", error);
@@ -73,55 +73,13 @@ const Swap: React.FC = () => {
     fetchAllowance();
   }, [publicClient, fromToken, router, address]);
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (publicClient && fromToken && address) {
-        try {
-          const result = await readContract(
-            publicClient,
-            ERC20_ABI,
-            fromToken.address,
-            "balanceOf",
-            [address]
-          ) as bigint;
-          setBalance(result);
-        } catch (error) {
-          console.error("Error fetching balance:", error);
-          setBalance(0n);
-        }
-      }
-    };
 
-    fetchBalance();
-  }, [publicClient, fromToken, address]);
-
-  useEffect(() => {
-    const fetchBalanceTo = async () => {
-      if (publicClient && toToken && address) {
-        try {
-          const result = await readContract(
-            publicClient,
-            ERC20_ABI,
-            toToken.address,
-            "balanceOf",
-            [address]
-          ) as bigint;
-          setBalanceTo(result);
-        } catch (error) {
-          console.error("Error fetching balance:", error);
-          setBalanceTo(0n);
-        }
-      }
-    };
-
-    fetchBalanceTo();
-  }, [publicClient, toToken, address]);
 
   useEffect(() => {
     const fetchAmountsOut = async () => {
       if (publicClient && router && fromAmount && fromToken && toToken) {
         try {
-          const result = await readContract(
+          const result = (await readContract(
             publicClient,
             UNISWAP_V2_ROUTER_ABI,
             router,
@@ -130,7 +88,7 @@ const Swap: React.FC = () => {
               parseUnits(fromAmount, fromToken.decimals),
               [fromToken.address, toToken.address],
             ]
-          ) as readonly bigint[];
+          )) as readonly bigint[];
           setAmountsOut(result);
         } catch (error) {
           console.error("Error fetching amounts out:", error);
@@ -148,6 +106,50 @@ const Swap: React.FC = () => {
       hash,
     });
 
+    useEffect(() => {
+    const fetchBalance = async () => {
+      if (publicClient && fromToken && address) {
+        try {
+          const result = (await readContract(
+            publicClient,
+            ERC20_ABI,
+            fromToken.address,
+            "balanceOf",
+            [address]
+          )) as bigint;
+          setBalance(result);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+          setBalance(0n);
+        }
+      }
+    };
+
+    fetchBalance();
+  }, [publicClient, fromToken, address, isConfirmed]);
+
+  useEffect(() => {
+    const fetchBalanceTo = async () => {
+      if (publicClient && toToken && address) {
+        try {
+          const result = (await readContract(
+            publicClient,
+            ERC20_ABI,
+            toToken.address,
+            "balanceOf",
+            [address]
+          )) as bigint;
+          setBalanceTo(result);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+          setBalanceTo(0n);
+        }
+      }
+    };
+
+    fetchBalanceTo();
+  }, [publicClient, toToken, address, isConfirmed]);
+
   // Update approval status
   useEffect(() => {
     if (allowance && fromAmount && fromToken) {
@@ -159,7 +161,16 @@ const Swap: React.FC = () => {
   // Update toAmount when amountsOut changes
   useEffect(() => {
     if (amountsOut && amountsOut.length > 1 && toToken) {
-      setToAmount(formatUnits(amountsOut[1], toToken.decimals));
+      const fullAmount = formatUnits(amountsOut[1], toToken.decimals);
+
+      const roundedBigInt = (() => {
+        const scaled = parseUnits(fullAmount, 3); // bigint scaled to 3 decimals
+        return scaled; // keep bigint for precise math
+      })();
+
+      const displayAmount = (Number(roundedBigInt) / 1_000).toFixed(3);
+
+      setToAmount(displayAmount);
     }
   }, [amountsOut, toToken]);
 
@@ -173,7 +184,6 @@ const Swap: React.FC = () => {
   const handleApprove = async () => {
     if (!fromToken || !fromAmount || !router || !walletClient) return;
 
-    
     try {
       setIsConfirming(true);
       const txHash = await writeContract(
@@ -259,7 +269,7 @@ const Swap: React.FC = () => {
                   onTokenSwap={handleSwitchTokens}
                 />
               </div>
-              {balance && fromToken && (
+              {fromToken && (
                 <div
                   className="balance-display"
                   onClick={() =>
@@ -311,7 +321,7 @@ const Swap: React.FC = () => {
                   onTokenSwap={handleSwitchTokens}
                 />
               </div>
-              {balanceTo && toToken && (
+              {toToken && (
                 <div
                   className="balance-display"
                   onClick={() =>
@@ -342,9 +352,7 @@ const Swap: React.FC = () => {
         </div>
       </div>
 
-      {!address ? (
-        <w3m-button />
-      ) : !isApproved && fromAmount ? (
+       { address && !isApproved && fromAmount ? (
         <button
           className="approve-button"
           onClick={handleApprove}

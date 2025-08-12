@@ -1,38 +1,51 @@
-import React, { useState } from 'react'
-import Swap from './components/Swap'
-import Liquidity from './components/Liquidity'
-import './App.css'
+import React, { useState } from "react";
+import Swap from "./components/Swap";
+import Liquidity from "./components/Liquidity";
+import WalletButton from "./components/WalletButton";
+import "./App.css";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'swap' | 'liquidity'>('swap')
+  const [activeTab, setActiveTab] = useState<"swap" | "liquidity">("swap");
 
   return (
     <div className="app">
-      <div className="header">
-        <h1>FAIRNESS</h1>
+      <div className="top-header">
+        <div className="header">
+          <h1>FAIRNESS</h1>
+        </div>
+        <WalletButton />
       </div>
-      
+
       <div className="trading-interface">
         <div className="nav">
           <button
-            className={`nav-button ${activeTab === 'swap' ? 'active' : ''}`}
-            onClick={() => setActiveTab('swap')}
+            className={`nav-button ${activeTab === "swap" ? "active" : ""}`}
+            onClick={() => setActiveTab("swap")}
           >
             <h3>Swap</h3>
           </button>
-          <button
+          {/*  <button
             className={`nav-button ${activeTab === 'liquidity' ? 'active' : ''}`}
             onClick={() => setActiveTab('liquidity')}
           >
             <h3>Add Liquidity</h3>
+          </button>*/}
+          <button className={`nav-button`}>
+            <h3>Bridge</h3>
+          </button>
+          <button className={`nav-button`}>
+            <h3>Buy</h3>
+          </button>
+          <button className={`nav-button`}>
+            <h3>Sell</h3>
           </button>
         </div>
-        
-        {activeTab === 'swap' && <Swap />}
-        {activeTab === 'liquidity' && <Liquidity />}
+
+        {activeTab === "swap" && <Swap />}
+        {/*{activeTab === 'liquidity' && <Liquidity />}*/}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

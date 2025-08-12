@@ -32,6 +32,12 @@
       "symbol": "USDC",
       "name": "USDC"
     },
+    "USDT": {
+      "address": "0x1D13d5697490C94f5Aa6f38bEEB4D6Ef4535a40c",
+      "decimals": 6,
+      "symbol": "USDT",
+      "name": "USDT"
+    },
     "WFAIR": {
       "address": "0x4706C664ab84B7d6b9a7911cFB47b1f81335b208",
       "decimals": 18,
