@@ -1,0 +1,42 @@
+{
+  "id": 1328435889,
+  "name": "FAIR Testnet",
+  "displayName": "FAIR Testnet",
+  "nativeCurrency": {
+    "name": "fair",
+    "symbol": "FAIR",
+    "decimals": 18
+  },
+  "rpcUrls": {
+    "default": {
+      "http": ["https://testnet-v1.skalenodes.com/v1/idealistic-dual-miram"]
+    }
+  },
+  "blockExplorers": {
+    "default": {
+      "name": "FAIR Explorer",
+      "url": "https://idealistic-dual-miram.explorer.testnet-v1.skalenodes.com"
+    }
+  },
+  "router": "0x05BD86b5e9A6a8E838ef50cAEB96a502271349D0",
+  "tokens": {
+    "SKL": {
+      "address": "0x2770Fc13a45be852Db0bB90A85D463C03CCa4fA6",
+      "decimals": 18,
+      "symbol": "SKL",
+      "name": "SKALE"
+    },
+    "USDC": {
+      "address": "0x389E0Ec8a0226E96528761b5954830727d892117",
+      "decimals": 6,
+      "symbol": "USDC",
+      "name": "USDC"
+    },
+    "WFAIR": {
+      "address": "0x4706C664ab84B7d6b9a7911cFB47b1f81335b208",
+      "decimals": 18,
+      "symbol": "WFAIR",
+      "name": "Wrapped FAIR"
+    }
+  }
+}

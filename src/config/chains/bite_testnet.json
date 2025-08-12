@@ -1,0 +1,42 @@
+{
+  "id": 1289306510,
+  "name": "BITE Testnet",
+  "displayName": "BITE Testnet",
+  "nativeCurrency": {
+    "name": "Bite",
+    "symbol": "BITE",
+    "decimals": 18
+  },
+  "rpcUrls": {
+    "default": {
+      "http": ["https://testnet-v1.skalenodes.com/v1/warm-huge-striped-skale"]
+    }
+  },
+  "blockExplorers": {
+    "default": {
+      "name": "BITE Explorer",
+      "url": "https://warm-huge-striped-skale.explorer.testnet-v1.skalenodes.com:10001"
+    }
+  },
+  "router": "0xe9De5e77AAF276f981523F48bA80f63A212f099e",
+  "tokens": {
+    "SKL": {
+      "address": "0xc197C7C8Df1685911c29C2394b4f7D46Eaf900C4",
+      "decimals": 18,
+      "symbol": "SKL",
+      "name": "SKALE"
+    },
+    "USDC": {
+      "address": "0x05BD86b5e9A6a8E838ef50cAEB96a502271349D0",
+      "decimals": 6,
+      "symbol": "USDC",
+      "name": "USDC"
+    },
+    "WBITE": {
+      "address": "0x389E0Ec8a0226E96528761b5954830727d892117",
+      "decimals": 18,
+      "symbol": "WBITE",
+      "name": "Wrapped BITE"
+    }
+  }
+}
