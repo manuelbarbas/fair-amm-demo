@@ -54,12 +54,6 @@ body::before {
   flex: 1;
 }
 
-.wallet-button-container {
-  position: fixed;
-  right: 0;
-  transform: translateY(-50%);
-}
-
 .header h1 {
   color: rgb(30, 41, 59);
   font-size: 2.5rem;
@@ -114,7 +108,6 @@ body::before {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
-.swap-container,
 .liquidity-container {
   background: transparent;
   border: none;
@@ -124,7 +117,6 @@ body::before {
   width: 100%;
 }
 
-.swap-header,
 .liquidity-header {
   padding: 24px 24px 0px;
   display: flex;
@@ -132,7 +124,6 @@ body::before {
   justify-content: space-between;
 }
 
-.swap-header h2,
 .liquidity-header h2 {
   font-size: 18px;
   font-weight: 600;
@@ -140,479 +131,8 @@ body::before {
   margin: 0;
 }
 
-.settings-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  font-size: 18px;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.settings-button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: rgb(255, 255, 255);
-}
-
-.swap-form,
 .liquidity-form {
   position: relative;
-}
-
-.token-inputs-wrapper {
-  position: relative;
-}
-
-.token-input-container {
-  position: relative;
-  margin-bottom: 8px;
-  height: auto;
-  min-height: 120px;
-}
-
-.token-input-container:first-child {
-  margin-bottom: 8px;
-}
-
-.token-input-container:last-child {
-  margin-bottom: 0;
-}
-
-.token-input-container label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgb(100, 116, 139);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.token-input-row {
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.1);
-  border-radius: 20px;
-  padding: 24px;
-  transition: all 0.2s ease;
-  position: relative;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.token-input-row:hover {
-  border-color: rgba(59, 130, 246, 0.2);
-  background: rgba(248, 250, 252, 0.95);
-}
-
-.token-input-row:focus-within {
-  border-color: rgb(59, 130, 246);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  background: white;
-}
-
-.token-input-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.amount-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: rgb(72, 75, 79);
-  font-size: 28px;
-  font-weight: bold;
-  padding: 0;
-  width: 100%;
-}
-
-.amount-input::placeholder {
-  color: rgb(148, 163, 184);
-}
-
-/* Token selector and balance layout */
-.token-selector-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.balance-display {
-  display: flex;
-  align-items:center;
-  gap: 8px;
-  color: rgb(100, 116, 139);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 4px 8px;
-  border-radius: 8px;
-   margin-left: auto;
-}
-
-.balance-display:hover {
-  background: rgba(59, 130, 246, 0.08);
-  color: rgb(59, 130, 246);
-}
-
-.wallet-icon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.7;
-}
-
-.token-selector {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.selected-token {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #89b3f857;
-  border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 16px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 120px;
-  justify-content: flex-start;
-}
-
-.selected-token:hover {
-  background: rgb(59, 130, 246);
-  border-color: rgba(100, 116, 139, 0.4);
-  transform: translateY(-1px);
-}
-
-.selected-token .token-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.selected-token .token-symbol {
-  color: rgb(0, 0, 0);
-  font-weight: 500;
-  font-size: 16px;
-}
-
-.selected-token:hover .token-symbol {
-  color: rgb(255, 255, 255);
-}
-
-.selected-token .arrow {
-  color: rgb(152, 161, 192);
-  font-size: 12px;
-  margin-left: auto;
-}
-
-/* Token Modal Styles */
-.token-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.token-modal {
-  width: 100%;
-  max-width: 720px;
-  max-height: 600px;
-  background: #292b30a8;
-  border-radius: 20px;
-  border: 1px solid rgb(44, 47, 54);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.token-modal-header {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgb(44, 47, 54);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.search-container {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 16px;
-  color: rgb(152, 161, 192);
-  z-index: 1;
-}
-
-.token-search-input {
-  width: 100%;
-  background: rgb(44, 47, 54);
-  border: 1px solid transparent;
-  border-radius: 12px;
-  padding: 12px 16px 12px 48px;
-  color: rgb(255, 255, 255);
-  font-size: 16px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.token-search-input:focus {
-  border-color: rgb(59, 130, 246);
-  background: rgb(51, 54, 61);
-}
-
-.token-search-input::placeholder {
-  color: rgb(152, 161, 192);
-}
-
-.close-button {
-  background: transparent;
-  border: none;
-  color: rgb(152, 161, 192);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-button:hover {
-  background: rgb(44, 47, 54);
-  color: rgb(255, 255, 255);
-}
-
-.chain-filter {
-  padding: 16px 20px;
-  display: flex;
-  gap: 8px;
-  border-bottom: 1px solid rgb(44, 47, 54);
-  overflow-x: auto;
-}
-
-.chain-filter-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid rgb(64, 68, 79);
-  border-radius: 20px;
-  padding: 8px 16px;
-  color: rgb(152, 161, 192);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  min-width: fit-content;
-}
-
-.chain-filter-button:hover {
-  background: rgb(44, 47, 54);
-  color: rgb(255, 255, 255);
-}
-
-.chain-filter-button.active {
-  background: rgb(59, 130, 246);
-  border-color: rgb(59, 130, 246);
-  color: white;
-}
-
-.chain-badge {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgb(59, 130, 246);
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.chain-filter-button.active .chain-badge {
-  background: white;
-  color: rgb(59, 130, 246);
-}
-
-.token-list {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.token-list-header {
-  padding: 16px 20px 8px;
-  color: rgb(152, 161, 192);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.token-options {
-  padding: 0 0 20px;
-}
-
-.token-modal-option {
-  padding: 16px 20px;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.token-modal-option:hover {
-  background: rgb(44, 47, 54);
-}
-
-.token-modal-option-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-}
-
-.token-modal-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.token-modal-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.token-modal-name {
-  color: rgb(255, 255, 255);
-  font-weight: 500;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.token-modal-details {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.token-modal-symbol {
-  color: rgb(152, 161, 192);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.token-modal-chain {
-  color: rgb(152, 161, 192);
-  font-size: 14px;
-  padding: 2px 8px;
-  background: rgb(44, 47, 54);
-  border-radius: 4px;
-}
-
-.token-modal-address {
-  color: rgb(152, 161, 192);
-  font-size: 14px;
-  font-family: 'Courier New', monospace;
-  flex-shrink: 0;
-}
-
-/* Legacy dropdown styles - kept for backward compatibility */
-.token-dropdown {
-  display: none;
-}
-
-.token-option {
-  display: none;
-}
-
-.token-info {
-  display: none;
-}
-
-.balance {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  font-size: 12px;
-  color: rgb(152, 161, 192);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-
-.balance:hover {
-  color: rgb(255, 255, 255);
-}
-
-.switch-container {
-  display: flex;
-  justify-content: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.switch-button {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: white;
-  border: 2px solid rgba(59, 130, 246, 0.1);
-  color: rgb(59, 130, 246);
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.switch-button:hover {
-  background: rgb(59, 130, 246);
-  color: white;
-  transform: rotate(180deg);
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
 }
 
 .plus-icon {
@@ -623,9 +143,7 @@ body::before {
   font-weight: normal;
 }
 
-.swap-button,
-.liquidity-button,
-.approve-button {
+.liquidity-button {
   width: 100%;
   padding: 18px;
   background: rgb(59, 130, 246);
@@ -641,17 +159,13 @@ body::before {
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
 }
 
-.swap-button:hover,
-.liquidity-button:hover,
-.approve-button:hover {
+.liquidity-button:hover {
   background: rgb(30, 64, 175);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
 }
 
-.swap-button:disabled,
-.liquidity-button:disabled,
-.approve-button:disabled {
+.liquidity-button:disabled {
   background: rgb(148, 163, 184);
   color: white;
   cursor: not-allowed;
@@ -668,229 +182,6 @@ body::before {
 .approval-buttons .approve-button {
   margin-top: 20px;
   flex: 1;
-}
-
-/* Connect Wallet Button Styling */
-.connect-wallet-button {
-  width: 100%;
-  padding: 18px;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c44f95 100%);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 20px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
-}
-
-.connect-wallet-button:hover {
-  background: linear-gradient(135deg, #ff7ba8 0%, #d15ba6 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
-}
-
-.success-message {
-  text-align: center;
-  color: rgb(39, 174, 96);
-  font-weight: 500;
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: rgba(39, 174, 96, 0.1);
-  border: 1px solid rgba(39, 174, 96, 0.2);
-  border-radius: 12px;
-  font-size: 14px;
-}
-
-/* Web3Modal button customization */
-w3m-button {
-  width: 100%;
-  margin-top: 20px;
-  --w3m-button-border-radius: 16px;
-  --w3m-button-bg-color: linear-gradient(135deg, #ff6b9d 0%, #c44f95 100%);
-  --w3m-button-color: white;
-  --w3m-button-hover-bg-color: linear-gradient(135deg, #ff7ba8 0%, #d15ba6 100%);
-}
-
-/* Wallet Button Styles */
-.wallet-button-container {
-  position: fixed;
-  padding-right: 20px;
-  display: inline-block;
-}
-
-/* Decorative depth circles */
-.wallet-depth-circle {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid;
-  pointer-events: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: -1;
-}
-
-.wallet-depth-circle-large {
-  width: 80px;
-  height: 80px;
-  border-color: rgba(0, 0, 0, 0.1);
-  z-index: -2;
-}
-
-.wallet-depth-circle-medium {
-  width: 60px;
-  height: 60px;
-  border-color: rgba(30, 64, 175, 0.15);
-  z-index: -1;
-}
-
-.connected-wallet-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(248, 250, 252, 0.9);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  color: rgb(71, 85, 105);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(8px);
-}
-
-.wallet-connection-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chain-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: rgb(59, 130, 246);
-  background: rgba(59, 130, 246, 0.1);
-  padding: 2px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.connected-wallet-button:hover {
-  background: rgba(248, 250, 252, 1);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.wallet-icon-connected {
-  color: rgb(59, 130, 246);
-  display: flex;
-  align-items: center;
-}
-
-.wallet-address {
-  font-family: 'Courier New', monospace;
-  color: rgb(71, 85, 105);
-}
-
-.dropdown-arrow {
-  transition: transform 0.2s ease;
-  color: rgb(100, 116, 139);
-}
-
-.dropdown-arrow.open {
-  transform: rotate(180deg);
-}
-
-.wallet-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 280px;
-  background: rgba(248, 250, 252, 0.95);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(12px);
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.wallet-dropdown-item {
-  padding: 16px;
-}
-
-.wallet-address-full {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.wallet-address-full span:first-child {
-  font-size: 12px;
-  color: rgb(100, 116, 139);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.address-text {
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  color: rgb(71, 85, 105);
-  background: rgba(59, 130, 246, 0.08);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  word-break: break-all;
-}
-
-.address-text:hover {
-  background: rgba(59, 130, 246, 0.12);
-  color: rgb(59, 130, 246);
-}
-
-.wallet-dropdown-divider {
-  height: 1px;
-  background: rgba(59, 130, 246, 0.15);
-  margin: 0 16px;
-}
-
-.wallet-dropdown-button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  color: rgb(71, 85, 105);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: left;
-}
-
-.wallet-dropdown-button:hover {
-  background: rgba(59, 130, 246, 0.08);
-  color: rgb(59, 130, 246);
-}
-
-.wallet-dropdown-button.disconnect {
-  color: rgb(239, 68, 68);
-}
-
-.wallet-dropdown-button.disconnect:hover {
-  background: rgba(239, 68, 68, 0.08);
-  color: rgb(220, 38, 38);
 }
 
 /* Chain Switcher Styles */
@@ -979,11 +270,6 @@ w3m-button {
   display: inline-block;
 }
 
-/* Add click-outside handler for dropdowns */
-.token-dropdown {
-  /* existing styles... */
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
   .app {
@@ -994,11 +280,6 @@ w3m-button {
     flex-direction: column;
     gap: 16px;
     padding: 0 10px;
-  }
-  
-  .wallet-button-container {
-    position: static;
-    transform: none;
   }
   
   .header h1 {
@@ -1015,36 +296,13 @@ w3m-button {
     text-align: center;
   }
   
-  .swap-container,
   .liquidity-container {
     margin: 0 10px;
     max-width: calc(100vw - 20px);
   }
   
-  .swap-form,
   .liquidity-form {
     padding: 16px;
-  }
-  
-  .token-input-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-  }
-  
-  .amount-input {
-    font-size: 24px;
-    text-align: center;
-  }
-  
-  .token-selector {
-    width: 100%;
-  }
-  
-  .selected-token {
-    min-width: auto;
-    width: 100%;
-    justify-content: center;
   }
   
   .approval-buttons {

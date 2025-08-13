@@ -7,11 +7,12 @@ import {
   usePublicClient,
 } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import TokenSelector from "./TokenSelector";
-import { getTokens, getRouter } from "../config/config";
-import { ERC20_ABI } from "../abi/ERC20";
-import { UNISWAP_V2_ROUTER_ABI } from "../abi/UniswapV2Router";
-import { readContract, writeContract } from "../web3/requests";
+import TokenSelector from "../tokenSelection/TokenSelector";
+import { getTokens, getRouter } from "../../config/config";
+import { ERC20_ABI } from "../../abi/ERC20";
+import { UNISWAP_V2_ROUTER_ABI } from "../../abi/UniswapV2Router";
+import { readContract, writeContract } from "../../web3/requests";
+import "./swap.css";
 
 interface Token {
   address: `0x${string}`;
@@ -69,11 +70,8 @@ const Swap: React.FC = () => {
         }
       }
     };
-
-    fetchAllowance();
+   fetchAllowance();
   }, [publicClient, fromToken, router, address]);
-
-
 
   useEffect(() => {
     const fetchAmountsOut = async () => {
@@ -106,7 +104,7 @@ const Swap: React.FC = () => {
       hash,
     });
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchBalance = async () => {
       if (publicClient && fromToken && address) {
         try {
@@ -352,7 +350,7 @@ const Swap: React.FC = () => {
         </div>
       </div>
 
-       { address && !isApproved && fromAmount ? (
+      {address && !isApproved && fromAmount ? (
         <button
           className="approve-button"
           onClick={handleApprove}

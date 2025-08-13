@@ -1,0 +1,292 @@
+/* Token Selector Component Styles */
+
+.token-selector {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.selected-token {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #89b3f857;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: flex-start;
+}
+
+.selected-token:hover {
+  background: rgb(59, 130, 246);
+  border-color: rgba(100, 116, 139, 0.4);
+  transform: translateY(-1px);
+}
+
+.selected-token .token-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.selected-token .token-symbol {
+  color: rgb(0, 0, 0);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.selected-token:hover .token-symbol {
+  color: rgb(255, 255, 255);
+}
+
+.selected-token .arrow {
+  color: rgb(152, 161, 192);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* Token Modal Styles */
+.token-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.token-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: 600px;
+  background: #292b30a8;
+  border-radius: 20px;
+  border: 1px solid rgb(44, 47, 54);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.token-modal-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgb(44, 47, 54);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  color: rgb(152, 161, 192);
+  z-index: 1;
+}
+
+.token-search-input {
+  width: 100%;
+  background: rgb(44, 47, 54);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 16px 12px 48px;
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.token-search-input:focus {
+  border-color: rgb(59, 130, 246);
+  background: rgb(51, 54, 61);
+}
+
+.token-search-input::placeholder {
+  color: rgb(152, 161, 192);
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  color: rgb(152, 161, 192);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: rgb(44, 47, 54);
+  color: rgb(255, 255, 255);
+}
+
+.chain-filter {
+  padding: 16px 20px;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgb(44, 47, 54);
+  overflow-x: auto;
+}
+
+.chain-filter-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgb(64, 68, 79);
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: rgb(152, 161, 192);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.chain-filter-button:hover {
+  background: rgb(44, 47, 54);
+  color: rgb(255, 255, 255);
+}
+
+.chain-filter-button.active {
+  background: rgb(59, 130, 246);
+  border-color: rgb(59, 130, 246);
+  color: white;
+}
+
+.chain-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgb(59, 130, 246);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chain-filter-button.active .chain-badge {
+  background: white;
+  color: rgb(59, 130, 246);
+}
+
+.token-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.token-list-header {
+  padding: 16px 20px 8px;
+  color: rgb(152, 161, 192);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.token-options {
+  padding: 0 0 20px;
+}
+
+.token-modal-option {
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.token-modal-option:hover {
+  background: rgb(44, 47, 54);
+}
+
+.token-modal-option-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.token-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.token-modal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.token-modal-name {
+  color: rgb(255, 255, 255);
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.token-modal-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-modal-symbol {
+  color: rgb(152, 161, 192);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.token-modal-chain {
+  color: rgb(152, 161, 192);
+  font-size: 14px;
+  padding: 2px 8px;
+  background: rgb(44, 47, 54);
+  border-radius: 4px;
+}
+
+.token-modal-address {
+  color: rgb(152, 161, 192);
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  flex-shrink: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .token-selector {
+    width: 100%;
+  }
+  
+  .selected-token {
+    min-width: auto;
+    width: 100%;
+    justify-content: center;
+  }
+}

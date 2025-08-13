@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Swap from "./components/Swap";
-import Liquidity from "./components/Liquidity";
-import WalletButton from "./components/WalletButton";
+import Swap from "./components/swap/Swap";
+import WalletButton from "./components/wallet/WalletButton";
 import "./App.css";
 
 function App() {
@@ -24,12 +23,6 @@ function App() {
           >
             <h3>Swap</h3>
           </button>
-          {/*  <button
-            className={`nav-button ${activeTab === 'liquidity' ? 'active' : ''}`}
-            onClick={() => setActiveTab('liquidity')}
-          >
-            <h3>Add Liquidity</h3>
-          </button>*/}
           <button className={`nav-button`}>
             <h3>Bridge</h3>
           </button>
@@ -42,7 +35,6 @@ function App() {
         </div>
 
         {activeTab === "swap" && <Swap />}
-        {/*{activeTab === 'liquidity' && <Liquidity />}*/}
       </div>
     </div>
   );

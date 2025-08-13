@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAccount, useDisconnect, useChainId } from 'wagmi';
-import { getChainById } from '../config/config';
+import { getChainById } from '../../config/config';
+import './walletButton.css';
 
 const WalletButton: React.FC = () => {
   const { address, isConnected } = useAccount();

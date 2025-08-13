@@ -1,6 +1,7 @@
 import React from 'react'
 import { useChainId, useSwitchChain } from 'wagmi'
-import { getTokens, getTokenIcon, getAllTokensWithChain, chainMetadata } from '../config/config'
+import { getTokens, getTokenIcon, getAllTokensWithChain, chainMetadata } from '../../config/config'
+import './tokenSelector.css'
 
 interface Token {
   address: `0x${string}`
