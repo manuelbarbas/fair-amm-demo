@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 
-export interface SwapSettingsData {
+export interface TransactionSettingsData {
   slippage: {
     isAuto: boolean;
     value: number;
   };
   deadline: number; // in minutes
   biteEncryption: boolean;
+  [key: string]: any; // Allow for transaction-type specific settings
 }
 
-export const DEFAULT_SETTINGS: SwapSettingsData = {
+export const DEFAULT_TRANSACTION_SETTINGS: TransactionSettingsData = {
   slippage: {
     isAuto: true,
     value: 0.5,
@@ -18,29 +19,39 @@ export const DEFAULT_SETTINGS: SwapSettingsData = {
   biteEncryption: true,
 };
 
-export const useSwapSettings = (initialSettings?: SwapSettingsData) => {
-  const [settings, setSettings] = useState<SwapSettingsData>(
-    initialSettings || DEFAULT_SETTINGS
-  );
+export interface TransactionSettingsConfig {
+  storageKey: string;
+  defaultSettings?: Partial<TransactionSettingsData>;
+}
+
+export const useTransactionSettings = (config: TransactionSettingsConfig) => {
+  const { storageKey, defaultSettings = {} } = config;
+  
+  const finalDefaultSettings = { 
+    ...DEFAULT_TRANSACTION_SETTINGS, 
+    ...defaultSettings 
+  };
+
+  const [settings, setSettings] = useState<TransactionSettingsData>(finalDefaultSettings);
   const [isOpen, setIsOpen] = useState(false);
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('swapSettings');
+    const savedSettings = localStorage.getItem(storageKey);
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
-        setSettings({ ...DEFAULT_SETTINGS, ...parsed });
+        setSettings({ ...finalDefaultSettings, ...parsed });
       } catch (error) {
-        console.warn('Failed to parse saved settings:', error);
+        console.warn(`Failed to parse saved settings for ${storageKey}:`, error);
       }
     }
-  }, []);
+  }, [storageKey, finalDefaultSettings]);
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('swapSettings', JSON.stringify(settings));
-  }, [settings]);
+    localStorage.setItem(storageKey, JSON.stringify(settings));
+  }, [storageKey, settings]);
 
   const openSettings = () => setIsOpen(true);
   const closeSettings = () => setIsOpen(false);
@@ -69,8 +80,15 @@ export const useSwapSettings = (initialSettings?: SwapSettingsData) => {
     }));
   };
 
+  const updateCustomSetting = (key: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const resetToDefaults = () => {
-    setSettings(DEFAULT_SETTINGS);
+    setSettings(finalDefaultSettings);
   };
 
   // Computed values
@@ -88,6 +106,7 @@ export const useSwapSettings = (initialSettings?: SwapSettingsData) => {
     updateSlippage,
     updateDeadline,
     toggleBiteEncryption,
+    updateCustomSetting,
     resetToDefaults,
     setSettings,
     

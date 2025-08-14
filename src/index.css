@@ -42,7 +42,7 @@ body::before {
 .top-header {
   width: 100%;
   display: flex;
-  margin-bottom: 10%;
+  margin-bottom: 2%;
 }
 
 .left-top-bar {
@@ -103,6 +103,16 @@ body::before {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+/* Pool Interface Container - Full width for pool pages */
+.pool-interface {
   background: transparent;
   border-radius: 0;
   border: none;

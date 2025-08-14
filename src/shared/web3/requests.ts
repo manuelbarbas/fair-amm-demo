@@ -14,7 +14,7 @@ export async function readContract(publicClient: PublicClient, contractABI: Abi,
   return result;
 }
 
-export async function writeContract(walletClient: WalletClient,contractABI: Abi, contractAddress: `0x${string}`, funcName: string, args: unknown[] = [], isBite:boolean) {
+export async function writeContract(walletClient: WalletClient,contractABI: Abi, contractAddress: `0x${string}`, funcName: string, args: unknown[] = [], isBite:boolean, value: bigint = 0n) {
   if (!walletClient.account) {
     throw new Error("Wallet client account is undefined");
   }
@@ -44,7 +44,7 @@ export async function writeContract(walletClient: WalletClient,contractABI: Abi,
     account: walletClient.account,
     to: transaction.to,
     data: transaction.data,
-    value: 0n,
+    value: value,
     gas: transaction.gas,
     chain: walletClient.chain
   });

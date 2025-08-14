@@ -4,11 +4,11 @@ import { formatUnits } from "viem";
 import TokenSelector from "../../tokenSelection/components/TokenSelector";
 import { useSwap } from "../hooks/useSwap";
 import type { Token } from "../services/swap";
-import type { SwapSettingsData } from "../hooks/useSwapSettings";
+import type { TransactionSettingsData } from "../../settings/hooks/useTransactionSettings";
 import "./swap.css";
 
 interface SwapProps {
-  swapSettings: SwapSettingsData;
+  swapSettings: TransactionSettingsData;
 }
 
 const Swap: React.FC<SwapProps> = ({ swapSettings }) => {

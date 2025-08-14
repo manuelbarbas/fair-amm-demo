@@ -3,9 +3,9 @@ import { parseUnits, formatUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from "wagmi";
 import { createSwapService, type Token, type SwapQuote } from "../services/swap";
 import { getTokens, getRouter } from "../../../config/config";
-import type { SwapSettingsData } from "./useSwapSettings";
+import type { TransactionSettingsData } from "../../settings/hooks/useTransactionSettings";
 
-export const useSwap = (swapSettings: SwapSettingsData) => {
+export const useSwap = (swapSettings: TransactionSettingsData) => {
   const { address } = useAccount();
   const chainId = useChainId();
   const { data: walletClient } = useWalletClient();
