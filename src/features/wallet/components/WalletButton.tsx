@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAccount, useDisconnect, useChainId } from 'wagmi';
-import { getChainById } from '../../config/config';
+import { getChainById } from '../../../config/config';
 import './walletButton.css';
 
 const WalletButton: React.FC = () => {
@@ -44,7 +44,7 @@ const WalletButton: React.FC = () => {
 
   if (!isConnected || !address) {
     return (
-      <div className="wallet-button-container">
+      <div>
         <w3m-button />
       </div>
     );

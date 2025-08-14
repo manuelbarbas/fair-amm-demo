@@ -26,19 +26,10 @@
 /* Web3Modal button customization */
 w3m-button {
   width: 100%;
-  margin-top: 20px;
   --w3m-button-border-radius: 16px;
   --w3m-button-bg-color: linear-gradient(135deg, #ff6b9d 0%, #c44f95 100%);
   --w3m-button-color: white;
   --w3m-button-hover-bg-color: linear-gradient(135deg, #ff7ba8 0%, #d15ba6 100%);
-}
-
-/* Wallet Button Styles */
-.wallet-button-container {
-  position: fixed;
-  right: 0;
-  top: 0;
-  padding-right: 20px;
 }
 
 /* Decorative depth circles */

@@ -9,11 +9,12 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: url('./assets/fair_bg_2.png') center/cover no-repeat fixed;
-  color: rgb(30, 41, 59);
+  background-color: var(--background-primary);
+  color: var(--text-primary);
   min-height: 100vh;
   margin: 0;
   position: relative;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* Transparent blue overlay */
@@ -40,25 +41,57 @@ body::before {
 
 .top-header {
   width: 100%;
-  max-width: 1200px;
   display: flex;
+  margin-bottom: 10%;
+}
+
+.left-top-bar {
+  display: flex;
+  -webkit-box-align: center;
   align-items: center;
-  justify-content: center;
-  margin: 40px 0;
-  padding: 0 20px;
-  position: relative;
+  gap: 12px;
+}
+.right-top-bar {
+  -webkit-box-pack: end;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.left-right-top-bar {
+    width: 100%;
+    display: flex;
+    padding: 0px;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: start;
+}
+
+.left-top-bar h1 {
+  color: rgb(30, 41, 59);
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header {
-  text-align: center;
-  flex: 1;
+  display: flex;
+  align-items: stretch;
+  flex-basis: auto;
+  box-sizing: border-box;
+  position: relative;
+  min-height: 0px;
+  min-width: 0px;
+  flex-shrink: 0;
+  align-items: center;
 }
 
 .header h1 {
   color: rgb(30, 41, 59);
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 10px;
   background: linear-gradient(135deg, #3b82f6, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -80,32 +113,57 @@ body::before {
 
 .nav {
   margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
 }
 
 .nav-button {
   flex: 1;
   padding: 12px 20px;
   background: transparent;
-  color: rgb(100, 116, 139);
+  color: var(--text-secondary);
   border: none;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   border-radius: 16px;
   position: relative;
 }
 
 .nav-button:hover {
-  background: rgba(59, 130, 246, 0.08);
-  color: rgb(59, 130, 246);
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
 }
 
 .nav-button.active {
-  background: rgb(59, 130, 246);
+  background: var(--primary-blue);
   color: white;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  box-shadow: var(--shadow-button);
+}
+
+/* Settings Icon Button */
+.settings-icon-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.settings-icon-button:hover {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+  transform: rotate(45deg);
 }
 
 .liquidity-container {

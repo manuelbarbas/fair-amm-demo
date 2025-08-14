@@ -9,19 +9,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #89b3f857;
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: var(--primary-blue-light);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
   padding: 8px 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   min-width: 120px;
   justify-content: flex-start;
 }
 
 .selected-token:hover {
-  background: rgb(59, 130, 246);
-  border-color: rgba(100, 116, 139, 0.4);
+  background: var(--primary-blue);
+  border-color: var(--border-secondary);
   transform: translateY(-1px);
 }
 
@@ -33,17 +33,17 @@
 }
 
 .selected-token .token-symbol {
-  color: rgb(0, 0, 0);
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 16px;
 }
 
 .selected-token:hover .token-symbol {
-  color: rgb(255, 255, 255);
+  color: white;
 }
 
 .selected-token .arrow {
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 12px;
   margin-left: auto;
 }
@@ -55,7 +55,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--background-overlay);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -68,10 +68,10 @@
   width: 100%;
   max-width: 720px;
   max-height: 600px;
-  background: #292b30a8;
+  background: var(--background-modal);
   border-radius: 20px;
-  border: 1px solid rgb(44, 47, 54);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -79,7 +79,7 @@
 
 .token-modal-header {
   padding: 20px 20px 16px;
-  border-bottom: 1px solid rgb(44, 47, 54);
+  border-bottom: 1px solid var(--border-primary);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -95,54 +95,54 @@
 .search-icon {
   position: absolute;
   left: 16px;
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   z-index: 1;
 }
 
 .token-search-input {
   width: 100%;
-  background: rgb(44, 47, 54);
+  background: var(--input-background);
   border: 1px solid transparent;
   border-radius: 12px;
   padding: 12px 16px 12px 48px;
-  color: rgb(255, 255, 255);
+  color: var(--input-text);
   font-size: 16px;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .token-search-input:focus {
-  border-color: rgb(59, 130, 246);
-  background: rgb(51, 54, 61);
+  border-color: var(--input-border-focus);
+  background: var(--background-tertiary);
 }
 
 .token-search-input::placeholder {
-  color: rgb(152, 161, 192);
+  color: var(--input-placeholder);
 }
 
 .close-button {
   background: transparent;
   border: none;
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .close-button:hover {
-  background: rgb(44, 47, 54);
-  color: rgb(255, 255, 255);
+  background: var(--background-secondary);
+  color: var(--text-primary);
 }
 
 .chain-filter {
   padding: 16px 20px;
   display: flex;
   gap: 8px;
-  border-bottom: 1px solid rgb(44, 47, 54);
+  border-bottom: 1px solid var(--border-primary);
   overflow-x: auto;
 }
 
@@ -151,26 +151,26 @@
   align-items: center;
   gap: 8px;
   background: transparent;
-  border: 1px solid rgb(64, 68, 79);
+  border: 1px solid var(--border-secondary);
   border-radius: 20px;
   padding: 8px 16px;
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   white-space: nowrap;
   min-width: fit-content;
 }
 
 .chain-filter-button:hover {
-  background: rgb(44, 47, 54);
-  color: rgb(255, 255, 255);
+  background: var(--background-secondary);
+  color: var(--text-primary);
 }
 
 .chain-filter-button.active {
-  background: rgb(59, 130, 246);
-  border-color: rgb(59, 130, 246);
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
   color: white;
 }
 
@@ -178,7 +178,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgb(59, 130, 246);
+  background: var(--primary-blue);
   color: white;
   font-size: 12px;
   font-weight: 600;
@@ -190,7 +190,7 @@
 
 .chain-filter-button.active .chain-badge {
   background: white;
-  color: rgb(59, 130, 246);
+  color: var(--primary-blue);
 }
 
 .token-list {
@@ -201,7 +201,7 @@
 
 .token-list-header {
   padding: 16px 20px 8px;
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
@@ -213,14 +213,14 @@
 .token-modal-option {
   padding: 16px 20px;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .token-modal-option:hover {
-  background: rgb(44, 47, 54);
+  background: var(--background-secondary);
 }
 
 .token-modal-option-left {
@@ -245,7 +245,7 @@
 }
 
 .token-modal-name {
-  color: rgb(255, 255, 255);
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 16px;
   margin-bottom: 4px;
@@ -258,21 +258,21 @@
 }
 
 .token-modal-symbol {
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
 
 .token-modal-chain {
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 14px;
   padding: 2px 8px;
-  background: rgb(44, 47, 54);
+  background: var(--background-secondary);
   border-radius: 4px;
 }
 
 .token-modal-address {
-  color: rgb(152, 161, 192);
+  color: var(--text-secondary);
   font-size: 14px;
   font-family: 'Courier New', monospace;
   flex-shrink: 0;

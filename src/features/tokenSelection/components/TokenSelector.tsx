@@ -1,6 +1,6 @@
 import React from 'react'
 import { useChainId, useSwitchChain } from 'wagmi'
-import { getTokens, getTokenIcon, getAllTokensWithChain, chainMetadata } from '../../config/config'
+import { getTokens, getTokenIcon, getAllTokensWithChain, chainMetadata } from '../../../config/config'
 import './tokenSelector.css'
 
 interface Token {
@@ -47,13 +47,10 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
   }
 
   const handleSelect = async (token: Token & { chainId: number }) => {
-    // Check if the selected token is the same as the other selected token (smart swapping)
-    // We compare by symbol and chainId since address comparison might not work if chainId is missing on otherSelectedToken
     if (otherSelectedToken && 
         token.symbol === otherSelectedToken.symbol &&
         (token.chainId === otherSelectedToken.chainId || 
          (!otherSelectedToken.chainId && token.chainId === currentChainId))) {
-      // If we have a swap callback, use it to swap the tokens
       if (onTokenSwap) {
         console.log('Smart swapping tokens:', token.symbol, 'with', otherSelectedToken.symbol)
         onTokenSwap()
