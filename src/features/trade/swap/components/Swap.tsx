@@ -41,7 +41,6 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
             selectedToken={fromToken}
             amount={fromAmount}
             balance={balance}
-            balanceDisplayVariant="swap"
             onTokenSelect={setFromToken}
             onAmountChange={setFromAmount}
             onMaxClick={setMaxFromAmount}
@@ -66,7 +65,6 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
             amount={toAmount}
             balance={balanceTo}
             readOnly={true}
-            balanceDisplayVariant="swap"
             onTokenSelect={setToToken}
             onAmountChange={() => {}} // No-op since it's readonly
             onMaxClick={() => {}} // No-op for the "to" token

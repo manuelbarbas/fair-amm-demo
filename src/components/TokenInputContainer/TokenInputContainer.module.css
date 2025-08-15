@@ -38,6 +38,13 @@
   margin-bottom: 12px;
 }
 
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 .amountInput {
   flex: 1;
   background: transparent;
@@ -78,38 +85,21 @@
   color: var(--primary-blue);
 }
 
-/* Pool variant balance display */
-.tokenBalanceInfo {
+/* USD value display */
+.usdValue {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
   color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
+  border-radius: 8px;
 }
 
-.balanceText {
-  color: var(--text-secondary);
-  font-size: 14px;
+.usdValue span {
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
-.maxButton {
-  background: var(--primary-blue);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.maxButton:hover {
-  background: var(--primary-blue-dark);
-  transform: translateY(-1px);
-}
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -124,14 +114,18 @@
     text-align: center;
   }
 
-  .tokenBalanceInfo {
+  .bottomRow {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     gap: 8px;
   }
 
   .balanceDisplay {
     justify-content: center;
     margin-left: 0;
+  }
+
+  .usdValue {
+    justify-content: center;
   }
 }

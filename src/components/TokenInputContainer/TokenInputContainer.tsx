@@ -5,7 +5,36 @@ import { BalanceWalletIcon } from "../UI";
 import type { Token } from "../../types/token";
 import styles from "./TokenInputContainer.module.css";
 
-export type BalanceDisplayVariant = "swap" | "pool";
+// Utility function to format USD values
+const formatUSDValue = (value: number): string => {
+  if (value === 0) return "$0";
+  
+  const absValue = Math.abs(value);
+  
+  if (absValue >= 1_000_000_000) {
+    return `$${(value / 1_000_000_000).toLocaleString('en-US', { 
+      minimumFractionDigits: 1, 
+      maximumFractionDigits: 1 
+    })}B`;
+  } else if (absValue >= 1_000_000) {
+    return `$${(value / 1_000_000).toLocaleString('en-US', { 
+      minimumFractionDigits: 1, 
+      maximumFractionDigits: 1 
+    })}M`;
+  } else if (absValue >= 1_000) {
+    return `$${(value / 1_000).toLocaleString('en-US', { 
+      minimumFractionDigits: 1, 
+      maximumFractionDigits: 1 
+    })}K`;
+  } else if (absValue >= 1) {
+    return `$${value.toLocaleString('en-US', { 
+      minimumFractionDigits: 1, 
+      maximumFractionDigits: 1 
+    })}`;
+  } else {
+    return `$${value.toFixed(2)}`;
+  }
+};
 
 interface TokenInputContainerProps {
   // Token input props
@@ -16,7 +45,6 @@ interface TokenInputContainerProps {
   
   // Behavior props
   readOnly?: boolean;
-  balanceDisplayVariant?: BalanceDisplayVariant;
   
   // Handlers
   onTokenSelect: (token: Token | null) => void;
@@ -39,7 +67,6 @@ const TokenInputContainer: React.FC<TokenInputContainerProps> = ({
   balance,
   placeholder = "0",
   readOnly = false,
-  balanceDisplayVariant = "swap",
   onTokenSelect,
   onAmountChange,
   onMaxClick,
@@ -58,11 +85,22 @@ const TokenInputContainer: React.FC<TokenInputContainerProps> = ({
       formatUnits(balance, selectedToken.decimals)
     ).toFixed(2);
 
-    // Default to swap variant
     return (
       <div className={styles.balanceDisplay} onClick={onMaxClick}>
         <BalanceWalletIcon />
         <span>{formattedBalance}</span>
+      </div>
+    );
+  };
+
+  const renderUSDValue = () => {
+    // For now, always show $0 as placeholder
+    // Later this will be calculated using token price and amount
+    const usdValue = 0; // TODO: Calculate actual USD value based on amount and token price
+    
+    return (
+      <div className={styles.usdValue}>
+        <span>{formatUSDValue(usdValue)}</span>
       </div>
     );
   };
@@ -86,7 +124,10 @@ const TokenInputContainer: React.FC<TokenInputContainerProps> = ({
             onTokenSwap={onTokenSwap}
           />
         </div>
-        {renderBalanceDisplay()}
+        <div className={styles.bottomRow}>
+          {renderUSDValue()}
+          {renderBalanceDisplay()}
+        </div>
       </div>
     </div>
   );

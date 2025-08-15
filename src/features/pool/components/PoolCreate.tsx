@@ -256,7 +256,6 @@ export const PoolCreate: React.FC = () => {
                       selectedToken={tokenA}
                       amount={amountA}
                       balance={balanceA}
-                      balanceDisplayVariant="pool"
                       onTokenSelect={() => {}} // Disabled in step 2
                       onAmountChange={setAmountA}
                       onMaxClick={setMaxAmountA}
@@ -271,7 +270,6 @@ export const PoolCreate: React.FC = () => {
                       selectedToken={tokenB}
                       amount={amountB}
                       balance={balanceB}
-                      balanceDisplayVariant="pool"
                       onTokenSelect={() => {}} // Disabled in step 2
                       onAmountChange={setAmountB}
                       onMaxClick={setMaxAmountB}
