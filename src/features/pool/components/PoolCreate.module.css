@@ -181,7 +181,7 @@
 /* Token Selector Container */
 .tokenPairSelectors {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
 }
 
@@ -191,6 +191,7 @@
   border-radius: 16px;
   padding: 16px;
   transition: all var(--transition-normal);
+  width: 100%;
 }
 
 .tokenSelectorContainer:hover {
