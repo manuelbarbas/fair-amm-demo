@@ -18,84 +18,11 @@
 }
 
 .tokenInputContainer {
-  position: relative;
-  height: auto;
-  min-height: 120px;
-}
-
-.tokenInputContainer:first-child {
   margin-bottom: 8px;
 }
 
 .tokenInputContainer:last-child {
   margin-top: 8px;
-}
-
-.tokenInputRow {
-  background: var(--input-background);
-  border: 1px solid var(--input-border);
-  border-radius: 20px;
-  padding: 24px;
-  transition: all var(--transition-normal);
-  position: relative;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.tokenInputRow:hover {
-  border-color: var(--border-secondary);
-  background: var(--background-secondary);
-}
-
-.tokenInputRow:focus-within {
-  border-color: var(--input-border-focus);
-  box-shadow: 0 0 0 3px var(--primary-blue-light);
-  background: var(--input-background);
-}
-
-.tokenInputContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.amountInput {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--input-text);
-  font-size: 28px;
-  font-weight: bold;
-  padding: 0;
-  width: 100%;
-}
-
-.amountInput::placeholder {
-  color: var(--input-placeholder);
-}
-
-.balanceDisplay {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  padding: 4px 8px;
-  border-radius: 8px;
-  margin-left: auto;
-}
-
-.balanceDisplay:hover {
-  background: var(--primary-blue-light);
-  color: var(--primary-blue);
 }
 
 .switchContainer {
@@ -186,16 +113,5 @@
   
   .swapForm {
     padding: 16px;
-  }
-  
-  .tokenInputContent {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-  }
-  
-  .amountInput {
-    font-size: 24px;
-    text-align: center;
   }
 }

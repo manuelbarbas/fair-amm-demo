@@ -1,8 +1,8 @@
 import React, { useState , useMemo} from "react";
 import TokenSelector from "../../../components/TokenSelector/TokenSelector";
+import TokenInputContainer from "../../../components/TokenInputContainer/TokenInputContainer";
 import { usePool } from "../hooks/usePool";
 import { useTransactionSettings } from "../../../hooks/useTransactionSettings";
-import { formatUnits } from "viem";
 // 1. Import the CSS module
 import styles from "./PoolCreate.module.css";
 import { InfoIcon } from "../../../components/UI";
@@ -252,73 +252,33 @@ export const PoolCreate: React.FC = () => {
                 <div className={styles.formSection}>
                   <h3>Deposit amounts</h3>
                   <div className={styles.tokenPairContainer}>
-                    <div className={styles.tokenInputContainer}>
-                      <div className={styles.tokenInputRow}>
-                        <div className={styles.tokenInputContent}>
-                          <input
-                            className={styles.amountInput}
-                            type="number"
-                            value={amountA}
-                            onChange={(e) => setAmountA(e.target.value)}
-                            placeholder="0"
-                          />
-                          <TokenSelector
-                            selectedToken={tokenA}
-                            onTokenSelect={() => {}}
-                            otherSelectedToken={tokenB}
-                          />
-                        </div>
-                        {tokenA && (
-                          <div className={styles.tokenBalanceInfo}>
-                            <span className={styles.balanceText}>
-                              Balance: {formatUnits(balanceA, tokenA.decimals)}{" "}
-                              {tokenA.symbol}
-                            </span>
-                            <button
-                              className={styles.maxButton}
-                              onClick={setMaxAmountA}
-                            >
-                              MAX
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <TokenInputContainer
+                      selectedToken={tokenA}
+                      amount={amountA}
+                      balance={balanceA}
+                      balanceDisplayVariant="pool"
+                      onTokenSelect={() => {}} // Disabled in step 2
+                      onAmountChange={setAmountA}
+                      onMaxClick={setMaxAmountA}
+                      otherSelectedToken={tokenB}
+                      disableTokenSelector={true}
+                      containerClassName={styles.tokenInputContainer}
+                    />
                     <div className={styles.plusContainer}>
                       <div className={styles.plusIcon}>+</div>
                     </div>
-                    <div className={styles.tokenInputContainer}>
-                      <div className={styles.tokenInputRow}>
-                        <div className={styles.tokenInputContent}>
-                          <input
-                            className={styles.amountInput}
-                            type="number"
-                            value={amountB}
-                            onChange={(e) => setAmountB(e.target.value)}
-                            placeholder="0"
-                          />
-                          <TokenSelector
-                            selectedToken={tokenB}
-                            onTokenSelect={() => {}}
-                            otherSelectedToken={tokenA}
-                          />
-                        </div>
-                        {tokenB && (
-                          <div className={styles.tokenBalanceInfo}>
-                            <span className={styles.balanceText}>
-                              Balance: {formatUnits(balanceB, tokenB.decimals)}{" "}
-                              {tokenB.symbol}
-                            </span>
-                            <button
-                              className={styles.maxButton}
-                              onClick={setMaxAmountB}
-                            >
-                              MAX
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <TokenInputContainer
+                      selectedToken={tokenB}
+                      amount={amountB}
+                      balance={balanceB}
+                      balanceDisplayVariant="pool"
+                      onTokenSelect={() => {}} // Disabled in step 2
+                      onAmountChange={setAmountB}
+                      onMaxClick={setMaxAmountB}
+                      otherSelectedToken={tokenA}
+                      disableTokenSelector={true}
+                      containerClassName={styles.tokenInputContainer}
+                    />
                   </div>
                 </div>
                 {tokenA && tokenB && (

@@ -286,89 +286,11 @@
 }
 
 .tokenInputContainer {
-  position: relative;
   margin-bottom: 16px;
 }
 
 .tokenInputContainer:last-child {
   margin-bottom: 0;
-}
-
-.tokenInputRow {
-  background: var(--input-background);
-  border: 1px solid var(--input-border);
-  border-radius: 20px;
-  padding: 24px;
-  transition: all var(--transition-normal);
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.tokenInputRow:hover {
-  border-color: var(--border-secondary);
-  background: var(--background-primary);
-}
-
-.tokenInputRow:focus-within {
-  border-color: var(--input-border-focus);
-  box-shadow: 0 0 0 3px var(--primary-blue-light);
-  background: var(--input-background);
-}
-
-.tokenInputContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.amountInput {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--input-text);
-  font-size: 28px;
-  font-weight: bold;
-  padding: 0;
-  width: 100%;
-}
-
-.amountInput::placeholder {
-  color: var(--input-placeholder);
-}
-
-.tokenBalanceInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  margin-top: 12px;
-  border-top: 1px solid var(--border-secondary);
-}
-
-.balanceText {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.maxButton {
-  background: var(--primary-blue-light);
-  border: 1px solid var(--primary-blue);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary-blue);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.maxButton:hover {
-  background: var(--primary-blue);
-  color: white;
 }
 
 .plusContainer {
