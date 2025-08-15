@@ -2,39 +2,11 @@ import React from "react";
 import { formatUnits } from "viem";
 import TokenSelector from "../TokenSelector/TokenSelector";
 import { BalanceWalletIcon } from "../UI";
+import { useTokenUSDValue } from "../../hooks/useTokenUSDValue";
 import type { Token } from "../../types/token";
 import styles from "./TokenInputContainer.module.css";
+import { formatValue } from "../../utils";
 
-// Utility function to format USD values
-const formatUSDValue = (value: number): string => {
-  if (value === 0) return "$0";
-  
-  const absValue = Math.abs(value);
-  
-  if (absValue >= 1_000_000_000) {
-    return `$${(value / 1_000_000_000).toLocaleString('en-US', { 
-      minimumFractionDigits: 1, 
-      maximumFractionDigits: 1 
-    })}B`;
-  } else if (absValue >= 1_000_000) {
-    return `$${(value / 1_000_000).toLocaleString('en-US', { 
-      minimumFractionDigits: 1, 
-      maximumFractionDigits: 1 
-    })}M`;
-  } else if (absValue >= 1_000) {
-    return `$${(value / 1_000).toLocaleString('en-US', { 
-      minimumFractionDigits: 1, 
-      maximumFractionDigits: 1 
-    })}K`;
-  } else if (absValue >= 1) {
-    return `$${value.toLocaleString('en-US', { 
-      minimumFractionDigits: 1, 
-      maximumFractionDigits: 1 
-    })}`;
-  } else {
-    return `$${value.toFixed(2)}`;
-  }
-};
 
 interface TokenInputContainerProps {
   // Token input props
@@ -78,12 +50,18 @@ const TokenInputContainer: React.FC<TokenInputContainerProps> = ({
 }) => {
   const handleTokenSelect = disableTokenSelector ? () => {} : onTokenSelect;
 
+  // Get USD value for the current token and amount
+  const { usdValue, isLoading: isPriceLoading } = useTokenUSDValue({
+    token: selectedToken,
+    amount,
+  });
+
   const renderBalanceDisplay = () => {
     if (!selectedToken) return null;
 
-    const formattedBalance = parseFloat(
+    const formattedBalance = formatValue(parseFloat(
       formatUnits(balance, selectedToken.decimals)
-    ).toFixed(2);
+    ));
 
     return (
       <div className={styles.balanceDisplay} onClick={onMaxClick}>
@@ -94,13 +72,11 @@ const TokenInputContainer: React.FC<TokenInputContainerProps> = ({
   };
 
   const renderUSDValue = () => {
-    // For now, always show $0 as placeholder
-    // Later this will be calculated using token price and amount
-    const usdValue = 0; // TODO: Calculate actual USD value based on amount and token price
-    
     return (
       <div className={styles.usdValue}>
-        <span>{formatUSDValue(usdValue)}</span>
+        <span>
+          {isPriceLoading ? '...' : '$'+ formatValue(usdValue)}
+        </span>
       </div>
     );
   };
