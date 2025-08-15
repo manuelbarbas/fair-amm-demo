@@ -1,68 +1,56 @@
-import React, { useState } from "react";
-import TokenSelector from "../../tokenSelection/components/TokenSelector";
+import React, { useState , useMemo} from "react";
+import TokenSelector from "../../../components/TokenSelector/TokenSelector";
 import { usePool } from "../hooks/usePool";
-import { type TransactionSettingsData } from "../../settings/hooks/useTransactionSettings";
+import { useTransactionSettings } from "../../../hooks/useTransactionSettings";
 import { formatUnits } from "viem";
-import TransactionSettings from "../../settings/components/TransactionSettings";
-import "./poolCreate.css";
+// 1. Import the CSS module
+import styles from "./PoolCreate.module.css";
+import { InfoIcon } from "../../../components/UI";
 
-interface PoolCreateProps {
-  poolSettings: {
-    settings: TransactionSettingsData;
-    openSettings: () => void;
-    closeSettings: () => void;
-    isOpen: boolean;
-  };
-}
-
-const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
+export const PoolCreate: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [selectedVersion, setSelectedVersion] = useState("v2");
-  const [showSettings, setShowSettings] = useState(false);
+
+   const defaultPoolSettings = useMemo(
+      () => ({
+        slippage: { isAuto: true, value: 0.5 },
+        deadline: 20,
+        biteEncryption: true,
+      }),
+      []
+    );
+  
+    const poolSettings = useTransactionSettings({
+      storageKey: "poolTransactionSettings",
+      defaultSettings: defaultPoolSettings,
+    });
+  
 
   const {
-    // State
     tokenA,
     tokenB,
     amountA,
     amountB,
-    selectedFeeTier,
-    priceRangeOption,
     balanceA,
     balanceB,
-    isApprovedA,
-    isApprovedB,
-    quote,
-    isConfirming,
-    isLoadingQuote,
-
-    // Computed
-    canCreatePool,
     needsApprovalA,
     needsApprovalB,
-
-    // Actions
+    isConfirming,
+    canCreatePool,
     setTokenA,
     setTokenB,
     setAmountA,
     setAmountB,
-    setSelectedFeeTier,
-    setPriceRangeOption,
     handleApproveTokenA,
     handleApproveTokenB,
     handleCreatePool,
-    handleTokenSwap,
     setMaxAmountA,
     setMaxAmountB,
   } = usePool(poolSettings.settings);
 
-  // Fixed 0.3% fee for V2 pools
   const v2FeeTier = 0.3;
-
-  // Step 1 completion check
   const isStep1Complete = tokenA && tokenB;
 
-  // Reset function
   const handleReset = () => {
     setCurrentStep(1);
     setTokenA(null);
@@ -71,7 +59,6 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     setAmountB("");
   };
 
-  // Continue to step 2
   const handleContinue = () => {
     if (isStep1Complete) {
       setCurrentStep(2);
@@ -82,7 +69,9 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     if (currentStep === 1) {
       return (
         <button
-          className={`continue-button ${isStep1Complete ? "" : "disabled"}`}
+          className={`${styles.continueButton} ${
+            !isStep1Complete ? styles.disabled : ""
+          }`}
           disabled={!isStep1Complete}
           onClick={handleContinue}
         >
@@ -94,7 +83,7 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     if (needsApprovalA) {
       return (
         <button
-          className="create-pool-button"
+          className={styles.createPoolButton}
           onClick={handleApproveTokenA}
           disabled={isConfirming}
         >
@@ -106,7 +95,7 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     if (needsApprovalB) {
       return (
         <button
-          className="create-pool-button"
+          className={styles.createPoolButton}
           onClick={handleApproveTokenB}
           disabled={isConfirming}
         >
@@ -117,7 +106,9 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
 
     return (
       <button
-        className={`create-pool-button ${canCreatePool ? "" : "disabled"}`}
+        className={`${styles.createPoolButton} ${
+          !canCreatePool ? styles.disabled : ""
+        }`}
         disabled={!canCreatePool || isConfirming}
         onClick={handleCreatePool}
       >
@@ -126,22 +117,22 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     );
   };
 
+  // 2. Replace all className strings with {styles.className}
   return (
-    <div className="pool-create-wrapper">
-      {/* Pool Header */}
-      <div className="pool-header">
-        <div className="pool-header-left">
+    <div className={styles.poolCreateWrapper}>
+      <div className={styles.poolHeader}>
+        <div className={styles.poolHeaderLeft}>
           <h1>New position</h1>
         </div>
-        <div className="pool-header-right">
-          <button className="reset-button" onClick={handleReset}>
+        <div className={styles.poolHeaderRight}>
+          <button className={styles.resetButton} onClick={handleReset}>
             ↻ Reset
           </button>
-          <div className="version-dropdown">
+          <div className={styles.versionDropdown}>
             <select
               value={selectedVersion}
               onChange={(e) => setSelectedVersion(e.target.value)}
-              className="version-select"
+              className={styles.versionSelect}
             >
               <option value="v2">v2 position</option>
               <option value="v3" disabled>
@@ -152,71 +143,31 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
               </option>
             </select>
           </div>
-          <button
-            className="settings-button"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            ⚙️
-          </button>
         </div>
       </div>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className="settings-panel">
-          <TransactionSettings settingsHook={poolSettings} transactionType="pool" />
-        </div>
-      )}
-
-      <div className="pool-create-container">
-        {/* Left Section - Steps */}
+      <div className={styles.poolCreateContainer}>
         <div>
-          <div className="pool-steps">
+          <div className={styles.poolSteps}>
             <div
-              className={`pool-step ${
+              className={`${styles.poolStep} ${
                 currentStep === 1
-                  ? "active"
+                  ? styles.active
                   : currentStep > 1
-                  ? "completed"
+                  ? styles.completed
                   : ""
               }`}
             >
-              <div className="step-number">1</div>
-              <div className="step-content">
-                <div className="setting-label">
+              <div className={styles.stepNumber}>1</div>
+              <div className={styles.stepContent}>
+                <div className={styles.settingLabel}>
                   <p>step 1</p>
-                  <div className="info-icon-container">
-                    <div className="info-icon">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M12,17h.01"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                  <div className={styles.infoIconContainer}>
+                    <div className={styles.infoIcon}>
+                      <InfoIcon/>
                     </div>
-                    <div className="info-tooltip">
-                      Choose the tokens you want to provide liquidity for. You
-                      can select tokens on all supported networks.
+                    <div className={styles.infoTooltip}>
+                      Choose the tokens you want to provide liquidity for.
                     </div>
                   </div>
                 </div>
@@ -225,47 +176,20 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
             </div>
 
             <div
-              className={`pool-step ${currentStep === 2 ? "active" : ""} ${
-                currentStep < 2 ? "disabled" : ""
-              }`}
+              className={`${styles.poolStep} ${
+                currentStep === 2 ? styles.active : ""
+              } ${currentStep < 2 ? styles.disabled : ""}`}
             >
-              <div className="step-number">2</div>
-              <div className="step-content">
-                <div className="setting-label">
+              <div className={styles.stepNumber}>2</div>
+              <div className={styles.stepContent}>
+                <div className={styles.settingLabel}>
                   <p>step 2</p>
-                  <div className="info-icon-container">
-                    <div className="info-icon">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M12,17h.01"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                  <div className={styles.infoIconContainer}>
+                    <div className={styles.infoIcon}>
+                      <InfoIcon/>
                     </div>
-                    <div className="info-tooltip">
-                      Specify the amount of each token to deposit. This will
-                      determine your share of the pool and the initial trading
-                      price.
+                    <div className={styles.infoTooltip}>
+                      Specify the amount of each token to deposit.
                     </div>
                   </div>
                 </div>
@@ -275,77 +199,64 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
           </div>
         </div>
 
-        {/* Right Section - Form Content */}
-        <div className="pool-create-right">
-          <div className="pool-form">
+        <div className={styles.poolCreateRight}>
+          <div className={styles.poolForm}>
             {currentStep === 1 && (
               <>
-                <div className="form-section">
+                <div className={styles.formSection}>
                   <h3>Select pair</h3>
-                  <p className="section-description">
-                    Choose the tokens you want to provide liquidity for. You can
-                    select tokens on all supported networks.
+                  <p className={styles.sectionDescription}>
+                    Choose the tokens you want to provide liquidity for.
                   </p>
-
-                  <div className="token-pair-selectors">
-                    <div className="token-selector-container">
+                  <div className={styles.tokenPairSelectors}>
+                    <div className={styles.tokenSelectorContainer}>
                       <TokenSelector
                         selectedToken={tokenA}
                         onTokenSelect={setTokenA}
                         otherSelectedToken={tokenB}
-                        onTokenSwap={() => {}}
                       />
                     </div>
-                    <div className="token-selector-container">
+                    <div className={styles.tokenSelectorContainer}>
                       <TokenSelector
                         selectedToken={tokenB}
                         onTokenSelect={setTokenB}
                         otherSelectedToken={tokenA}
-                        onTokenSwap={() => {}}
                       />
                     </div>
                   </div>
                 </div>
-
-                <div className="form-section">
+                <div className={styles.formSection}>
                   <h3>Fee tier</h3>
-                  <p className="section-description">
-                    The amount earned providing liquidity. Choose an amount that
-                    suits your risk tolerance and strategy.
+                  <p className={styles.sectionDescription}>
+                    The amount earned providing liquidity.
                   </p>
-
-                  <div className="fee-tier-container">
-                    <div className="fee-tier-selected">
-                      <div className="fee-tier-info">
-                        <span className="fee-tier-percentage">
+                  <div className={styles.feeTierContainer}>
+                    <div className={styles.feeTierSelected}>
+                      <div className={styles.feeTierInfo}>
+                        <span className={styles.feeTierPercentage}>
                           0.30% fee tier
                         </span>
-                        <span className="fee-tier-detail">Highest TVL</span>
-                        <span className="fee-tier-rewards">
-                          🟣 4.54% reward APR
-                        </span>
                       </div>
-                      <div className="fee-tier-description">
+                      <div className={styles.feeTierDescription}>
                         The % you will earn in fees
                       </div>
                     </div>
                   </div>
                 </div>
-
                 {renderActionButton()}
               </>
             )}
 
             {currentStep === 2 && (
               <>
-                <div className="form-section">
+                <div className={styles.formSection}>
                   <h3>Deposit amounts</h3>
-                  <div className="token-pair-container">
-                    <div className="token-input-container">
-                      <div className="token-input-row">
-                        <div className="token-input-content">
+                  <div className={styles.tokenPairContainer}>
+                    <div className={styles.tokenInputContainer}>
+                      <div className={styles.tokenInputRow}>
+                        <div className={styles.tokenInputContent}>
                           <input
-                            className="amount-input"
+                            className={styles.amountInput}
                             type="number"
                             value={amountA}
                             onChange={(e) => setAmountA(e.target.value)}
@@ -353,22 +264,18 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
                           />
                           <TokenSelector
                             selectedToken={tokenA}
-                            onTokenSelect={() => {}} // Disabled in step 2
+                            onTokenSelect={() => {}}
                             otherSelectedToken={tokenB}
-                            onTokenSwap={() => {}} // Disabled in step 2
                           />
                         </div>
                         {tokenA && (
-                          <div className="token-balance-info">
-                            <span className="balance-text">
-                              Balance:{" "}
-                              {tokenA
-                                ? formatUnits(balanceA, tokenA.decimals)
-                                : "0.00"}{" "}
+                          <div className={styles.tokenBalanceInfo}>
+                            <span className={styles.balanceText}>
+                              Balance: {formatUnits(balanceA, tokenA.decimals)}{" "}
                               {tokenA.symbol}
                             </span>
                             <button
-                              className="max-button"
+                              className={styles.maxButton}
                               onClick={setMaxAmountA}
                             >
                               MAX
@@ -377,16 +284,14 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
                         )}
                       </div>
                     </div>
-
-                    <div className="plus-container">
-                      <div className="plus-icon">+</div>
+                    <div className={styles.plusContainer}>
+                      <div className={styles.plusIcon}>+</div>
                     </div>
-
-                    <div className="token-input-container">
-                      <div className="token-input-row">
-                        <div className="token-input-content">
+                    <div className={styles.tokenInputContainer}>
+                      <div className={styles.tokenInputRow}>
+                        <div className={styles.tokenInputContent}>
                           <input
-                            className="amount-input"
+                            className={styles.amountInput}
                             type="number"
                             value={amountB}
                             onChange={(e) => setAmountB(e.target.value)}
@@ -394,22 +299,18 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
                           />
                           <TokenSelector
                             selectedToken={tokenB}
-                            onTokenSelect={() => {}} // Disabled in step 2
+                            onTokenSelect={() => {}}
                             otherSelectedToken={tokenA}
-                            onTokenSwap={() => {}} // Disabled in step 2
                           />
                         </div>
                         {tokenB && (
-                          <div className="token-balance-info">
-                            <span className="balance-text">
-                              Balance:{" "}
-                              {tokenB
-                                ? formatUnits(balanceB, tokenB.decimals)
-                                : "0.00"}{" "}
+                          <div className={styles.tokenBalanceInfo}>
+                            <span className={styles.balanceText}>
+                              Balance: {formatUnits(balanceB, tokenB.decimals)}{" "}
                               {tokenB.symbol}
                             </span>
                             <button
-                              className="max-button"
+                              className={styles.maxButton}
                               onClick={setMaxAmountB}
                             >
                               MAX
@@ -420,20 +321,18 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
                     </div>
                   </div>
                 </div>
-
-                {/* Pool Preview */}
                 {tokenA && tokenB && (
-                  <div className="form-section">
+                  <div className={styles.formSection}>
                     <h3>Pool Preview</h3>
-                    <div className="pool-preview">
-                      <div className="pool-pair">
+                    <div className={styles.poolPreview}>
+                      <div className={styles.poolPair}>
                         <span>
                           {tokenA.symbol} / {tokenB.symbol}
                         </span>
-                        <span className="fee-badge">{v2FeeTier}%</span>
+                        <span className={styles.feeBadge}>{v2FeeTier}%</span>
                       </div>
                       {amountA && amountB && (
-                        <div className="pool-ratio">
+                        <div className={styles.poolRatio}>
                           <div>
                             Initial Price: 1 {tokenA.symbol} ={" "}
                             {(
@@ -447,7 +346,6 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
                     </div>
                   </div>
                 )}
-
                 {renderActionButton()}
               </>
             )}
@@ -457,5 +355,3 @@ const PoolCreate: React.FC<PoolCreateProps> = ({ poolSettings }) => {
     </div>
   );
 };
-
-export default PoolCreate;

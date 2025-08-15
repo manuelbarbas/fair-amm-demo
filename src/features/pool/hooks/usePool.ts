@@ -3,7 +3,7 @@ import { parseUnits, formatUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from "wagmi";
 import { createPoolService, type Token, type PoolQuote } from "../services/pool";
 import { getTokens, getRouter } from "../../../config/config";
-import type { TransactionSettingsData } from "../../settings/hooks/useTransactionSettings";
+import type { TransactionSettingsData } from "../../../hooks/useTransactionSettings";
 
 export const usePool = (poolSettings: TransactionSettingsData) => {
   const { address } = useAccount();

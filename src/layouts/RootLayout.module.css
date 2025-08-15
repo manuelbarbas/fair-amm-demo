@@ -1,0 +1,134 @@
+/*
+ * Styles for the main application layout container.
+ * This uses the global theme variable for the background image.
+ */
+.app {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  transition: background-image var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 2rem; /* Using rem for better scalability */
+}
+
+/*
+ * Main header container.
+ * Uses flexbox to align navigation and controls.
+ */
+.topHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0.5rem 0;
+}
+
+/*
+ * Section for the logo and main navigation links.
+ */
+.navSection {
+  display: flex;
+  align-items: center;
+  gap: 2rem; /* Consistent spacing */
+}
+
+/*
+ * Section for controls like theme switcher and wallet button.
+ */
+.controlsSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/*
+ * Styling for the main logo link.
+ */
+.logoLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+/*
+ * Styling for the h1 logo text.
+ * Uses a gradient for a modern look.
+ */
+.logoLink h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0; /* Reset margin */
+}
+
+/*
+ * Base styles for navigation links (Trade, Pools).
+ */
+.navLink {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px; /* Added for a subtle hover effect */
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/*
+ * Hover state for navigation links.
+ */
+.navLink:hover {
+  color: var(--text-primary);
+  background-color: var(--background-tertiary);
+}
+
+/*
+ * Active state for NavLink, indicating the current page.
+ */
+.navLink.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/*
+ * Main content area where child routes will be rendered via <Outlet />.
+ */
+.mainContent {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+
+/*
+ * Responsive design for smaller screens.
+ */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+  
+  .topHeader {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .navSection {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .logoLink h1 {
+    font-size: 1.75rem;
+  }
+}

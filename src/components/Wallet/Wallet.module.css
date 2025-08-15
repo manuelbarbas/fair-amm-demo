@@ -1,0 +1,156 @@
+/* Wallet Button Component Styles */
+
+.walletButtonContainer {
+  position: relative;
+}
+
+.connectedWalletButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.connectedWalletButton:hover {
+  background: var(--background-tertiary);
+  border-color: var(--border-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.walletConnectionInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chainName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-blue);
+  background: var(--primary-blue-light);
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.walletIconConnected {
+  color: var(--primary-blue);
+  display: flex;
+  align-items: center;
+}
+
+.walletAddress {
+  font-family: 'Courier New', monospace;
+  color: var(--text-secondary);
+}
+
+.dropdownArrow {
+  transition: transform 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.dropdownArrow.open {
+  transform: rotate(180deg);
+}
+
+.walletDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  background: var(--background-modal);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-modal);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.walletDropdownItem {
+  padding: 16px;
+}
+
+.walletAddressFull {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.walletAddressFull span:first-child {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.addressText {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--background-tertiary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  word-break: break-all;
+}
+
+.addressText:hover {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+}
+
+.walletDropdownDivider {
+  height: 1px;
+  background: var(--border-primary);
+  margin: 0 16px;
+}
+
+.walletDropdownButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.walletDropdownButton:hover {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+.walletDropdownButton.disconnect {
+  color: #ef4444; /* Red color for disconnect */
+}
+
+.walletDropdownButton.disconnect:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .walletButtonContainer {
+    position: static;
+  }
+}

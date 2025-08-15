@@ -1,0 +1,443 @@
+/* Global Theme Variables */
+:root {
+  /* Primary Blue - Used in both themes */
+  --primary-blue: rgb(59, 130, 246);
+  --primary-blue-hover: rgb(37, 99, 235);
+  --primary-blue-light: rgba(59, 130, 246, 0.1);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.25);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"],
+.dark {
+  /* Backgrounds */
+  --background-primary: rgb(31, 31, 31);
+  --background-secondary: rgb(44, 47, 54);
+  --background-tertiary: rgb(51, 54, 61);
+  --background-modal: rgba(41, 43, 48, 0.95);
+  --background-overlay: rgba(0, 0, 0, 0.8);
+  
+  /* Text Colors */
+  --text-primary: rgb(255, 255, 255);
+  --text-secondary: rgb(152, 161, 192);
+  --text-tertiary: rgb(107, 114, 128);
+  --text-inverse: rgb(31, 31, 31);
+  
+  /* Border Colors */
+  --border-primary: rgb(44, 47, 54);
+  --border-secondary: rgb(64, 68, 79);
+  --border-tertiary: rgb(75, 85, 99);
+  
+  /* Input Styles */
+  --input-background: rgb(44, 47, 54);
+  --input-border: rgb(64, 68, 79);
+  --input-border-focus: var(--primary-blue);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-secondary);
+  
+  /* Button Styles */
+  --button-primary-bg: var(--primary-blue);
+  --button-primary-hover: var(--primary-blue-hover);
+  --button-primary-text: white;
+  --button-secondary-bg: var(--background-secondary);
+  --button-secondary-hover: var(--background-tertiary);
+  --button-secondary-text: var(--text-primary);
+  --button-secondary-border: var(--border-secondary);
+  
+  /* Shadows for dark theme */
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-button: 0 2px 8px rgba(59, 130, 246, 0.2);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.2);
+  
+  /* Background Image */
+  --background-image: url('./assets/fair_bg_black.png');
+}
+
+/* Light Theme */
+[data-theme="light"],
+.light {
+  /* Backgrounds */
+  --background-primary: #ffffff;
+  --background-secondary: rgb(248, 250, 252);
+  --background-tertiary: rgb(241, 245, 249);
+  --background-modal: rgba(255, 255, 255, 0.95);
+  --background-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Text Colors */
+  --text-primary: rgb(31, 41, 55);
+  --text-secondary: rgb(75, 85, 99);
+  --text-tertiary: rgb(107, 114, 128);
+  --text-inverse: rgb(255, 255, 255);
+  
+  /* Border Colors */
+  --border-primary: rgb(229, 231, 235);
+  --border-secondary: rgb(209, 213, 219);
+  --border-tertiary: rgb(156, 163, 175);
+  
+  /* Input Styles */
+  --input-background: rgb(255, 255, 255);
+  --input-border: rgb(209, 213, 219);
+  --input-border-focus: var(--primary-blue);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-secondary);
+  
+  /* Button Styles */
+  --button-primary-bg: var(--primary-blue);
+  --button-primary-hover: var(--primary-blue-hover);
+  --button-primary-text: white;
+  --button-secondary-bg: var(--background-primary);
+  --button-secondary-hover: var(--background-secondary);
+  --button-secondary-text: var(--text-primary);
+  --button-secondary-border: var(--border-secondary);
+  
+  /* Shadows for light theme */
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 2px 8px rgba(59, 130, 246, 0.15);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.1);
+  
+  /* Background Image */
+  --background-image: url('./assets/fair_bg.png');
+}
+
+/* Global body styles */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Background image application */
+.app {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  transition: background-image var(--transition-normal);
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  margin: 0;
+  position: relative;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Transparent blue overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:rgba(185, 218, 255, 0) 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+.top-header {
+  width: 100%;
+  display: flex;
+  margin-bottom: 2%;
+}
+
+.left-top-bar {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  gap: 12px;
+}
+.right-top-bar {
+  -webkit-box-pack: end;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.left-right-top-bar {
+    width: 100%;
+    display: flex;
+    padding: 0px;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: start;
+}
+
+.left-top-bar h1 {
+  color: rgb(30, 41, 59);
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header {
+  display: flex;
+  align-items: stretch;
+  flex-basis: auto;
+  box-sizing: border-box;
+  position: relative;
+  min-height: 0px;
+  min-width: 0px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.header h1 {
+  color: rgb(30, 41, 59);
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pool Interface Container - Full width for pool pages */
+.pool-interface {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.liquidity-container {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  width: 100%;
+}
+
+.liquidity-header {
+  padding: 24px 24px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.liquidity-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.liquidity-form {
+  position: relative;
+}
+
+.plus-icon {
+  text-align: center;
+  font-size: 20px;
+  color: rgb(100, 116, 139);
+  margin: 12px 0;
+  font-weight: normal;
+}
+
+.liquidity-button {
+  width: 100%;
+  padding: 18px;
+  background: rgb(59, 130, 246);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 20px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+}
+
+.liquidity-button:hover {
+  background: rgb(30, 64, 175);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+}
+
+.liquidity-button:disabled {
+  background: rgb(148, 163, 184);
+  color: white;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.approval-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.approval-buttons .approve-button {
+  margin-top: 20px;
+  flex: 1;
+}
+
+/* Chain Switcher Styles */
+.chain-switcher {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chain-switcher-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(100, 116, 139);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.chain-switcher-content {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 16px;
+  padding: 6px;
+  margin-bottom: 12px;
+}
+
+.chain-option {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.chain-option:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.chain-option.active {
+  background: rgb(59, 130, 246);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.chain-option:disabled {
+  cursor: not-allowed;
+}
+
+.chain-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.chain-option:not(.active) .chain-symbol,
+.chain-option:not(.active) .chain-name {
+  color: rgb(100, 116, 139);
+}
+
+.chain-option.active .chain-symbol,
+.chain-option.active .chain-name {
+  color: white;
+}
+
+.chain-symbol {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.chain-name {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.current-chain-info {
+  font-size: 12px;
+  color: rgb(100, 116, 139);
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+w3m-button {
+  width: 100%;
+  --w3m-button-border-radius: 16px;
+  --w3m-button-bg-color: linear-gradient(135deg, #ff6b9d 0%, #c44f95 100%);
+  --w3m-button-color: white;
+  --w3m-button-hover-bg-color: linear-gradient(135deg, #ff7ba8 0%, #d15ba6 100%);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .top-header {
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 10px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .liquidity-container {
+    margin: 0 10px;
+    max-width: calc(100vw - 20px);
+  }
+  
+  .liquidity-form {
+    padding: 16px;
+  }
+  
+  .approval-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+

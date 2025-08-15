@@ -1,0 +1,81 @@
+/*
+ * Main container for the entire trading feature (Swap, Bridge, etc.).
+ */
+.tradeContainer {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/*
+ * Navigation bar for switching between trade modes.
+ */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+  padding: 4px;
+  border-radius: 18px;
+}
+
+
+/*
+ * Individual buttons for each trade mode (Swap, Bridge).
+ */
+.nav button {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all var(--transition-normal);
+  border-radius: 16px;
+  position: relative;
+}
+
+/*
+ * Hover state for inactive navigation buttons.
+ */
+.nav button:not(.active):hover {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+/*
+ * Active state for the selected navigation button.
+ */
+.nav button.active {
+  background: var(--background-primary);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+}
+.settings {
+  margin-left: auto;
+}
+
+/*
+ * Container for the content of the active tab (e.g., the Swap component).
+ */
+.content {
+  width: 100%;
+}
+
+/*
+ * Responsive design for smaller screens.
+ */
+@media (max-width: 768px) {
+  .nav {
+    width: 100%;
+  }
+  
+  .nav button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}

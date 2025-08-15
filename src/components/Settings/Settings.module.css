@@ -1,0 +1,30 @@
+.settingsContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * Styling for the clickable gear icon button that opens the modal.
+ */
+.settingsIconButton {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px; /* Slightly larger radius for a modern feel */
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+ * Hover effect for the settings icon button.
+ */
+.settingsIconButton:hover {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+  transform: rotate(45deg);
+}

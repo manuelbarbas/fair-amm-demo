@@ -2,7 +2,7 @@ import { parseUnits, formatUnits } from "viem";
 import type { PublicClient, WalletClient } from "viem";
 import { ERC20_ABI } from "../../../abi/ERC20";
 import { UNISWAP_V2_ROUTER_ABI } from "../../../abi/UniswapV2Router";
-import { readContract, writeContract } from "../../../shared/web3/requests";
+import { readContract, writeContract } from "../../../hooks/useContracts";
 
 export interface Token {
   address: `0x${string}`;
