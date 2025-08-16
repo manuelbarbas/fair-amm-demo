@@ -3,6 +3,7 @@ import { parseUnits, formatUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from "wagmi";
 import { createPoolService, type Token, type PoolQuote } from "../services/pool";
 import { getTokens, getRouter } from "../../../config/config";
+import { usePoolBalance } from "./usePoolBalance";
 import type { TransactionSettingsData } from "../../../hooks/useTransactionSettings";
 
 export const usePool = (poolSettings: TransactionSettingsData) => {
@@ -17,8 +18,16 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
   // State for tokens
   const [tokenA, setTokenA] = useState<Token | null>(null);
   const [tokenB, setTokenB] = useState<Token | null>(null);
-  const [amountA, setAmountA] = useState("");
-  const [amountB, setAmountB] = useState("");
+  
+  // Use pool balance hook for automatic amount balancing
+  const {
+    amountA,
+    amountB,
+    setAmountA,
+    setAmountB,
+    isLoadingPrices,
+    error: balanceError
+  } = usePoolBalance({ tokenA, tokenB });
 
   // State for pool configuration
   const [selectedFeeTier, setSelectedFeeTier] = useState<number>(0.3);
@@ -265,21 +274,22 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
 
   const handleTokenSwap = () => {
     const tempToken = tokenA;
-    const tempAmount = amountA;
     const tempBalance = balanceA;
     const tempAllowance = allowanceA;
     const tempApproved = isApprovedA;
     
     setTokenA(tokenB);
     setTokenB(tempToken);
-    setAmountA(amountB);
-    setAmountB(tempAmount);
     setBalanceA(balanceB);
     setBalanceB(tempBalance);
     setAllowanceA(allowanceB);
     setAllowanceB(tempAllowance);
     setIsApprovedA(isApprovedB);
     setIsApprovedB(tempApproved);
+    
+    // Clear amounts as usePoolBalance will handle recalculation
+    setAmountA("");
+    setAmountB("");
     setQuote(null);
   };
 
@@ -321,6 +331,8 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     isConfirming,
     isConfirmed,
     isLoadingQuote,
+    isLoadingPrices,
+    balanceError,
     
     // Computed
     canCreatePool,

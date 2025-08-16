@@ -21,6 +21,7 @@ export const FIXED_USD_PRICES = {
   USDC: 1.0,
   USDT: 1.0,
   FAIR: 5.0,
+  WFAIR: 5.0, // Wrapped FAIR, same price as FAIR
 } as const;
 
 export interface PythPriceData {
