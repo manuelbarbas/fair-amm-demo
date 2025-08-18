@@ -12,6 +12,7 @@ PS: Needs to be deployed on FAIR Testent and and add the chain configuration und
 ## Quick Start
 
 1. Clone the repository (if not already done)
-2. Run `npm install` to install all dependencies
-3. Run `npm run dev` to start the development server
-4. Open your browser and navigate to the URL shown in the terminal (typically http://localhost:5173)
+2. Node version >= 21
+3. Run `npm install` to install all dependencies
+4. Run `npm run dev` to start the development server
+5. Open your browser and navigate to the URL shown in the terminal (typically http://localhost:5173)
