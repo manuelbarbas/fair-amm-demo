@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useChainId, useSwitchChain } from 'wagmi';
-import { getAllTokensWithChain, chainMetadata, getTokenIcon } from '../../config/config';
+import { getAllTokensWithChain, chainMetadata, getTokenIcon, isNativeToken } from '../../config/config';
 // 1. Import the CSS module correctly
 import styles from './TokenSelector.module.css';
 
@@ -158,7 +158,7 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
                       </div>
                     </div>
                     <div className={styles.tokenModalAddress}>
-                      {shortenAddress(token.address)}
+                      {isNativeToken(token) ? "Native" : shortenAddress(token.address)}
                     </div>
                   </div>
                 ))}

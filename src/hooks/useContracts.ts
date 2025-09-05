@@ -1,20 +1,37 @@
-import {encodeFunctionData, type WalletClient, type PublicClient, type Abi } from 'viem'
-import {BITE} from "@skalenetwork/bite";
+import {
+  encodeFunctionData,
+  type WalletClient,
+  type PublicClient,
+  type Abi,
+} from "viem";
+import { BITE } from "@skalenetwork/bite";
 
-
-export async function readContract(publicClient: PublicClient, contractABI: Abi, contractAddress: `0x${string}` ,funcName: string, args: unknown[] = []) {
-  
+export async function readContract(
+  publicClient: PublicClient,
+  contractABI: Abi,
+  contractAddress: `0x${string}`,
+  funcName: string,
+  args: unknown[] = []
+) {
   const result = await publicClient.readContract({
     abi: contractABI,
     address: contractAddress,
     functionName: funcName,
-    args: args
+    args: args,
   });
 
   return result;
 }
 
-export async function writeContract(walletClient: WalletClient,contractABI: Abi, contractAddress: `0x${string}`, funcName: string, args: unknown[] = [], isBite:boolean, value: bigint = 0n) {
+export async function writeContract(
+  walletClient: WalletClient,
+  contractABI: Abi,
+  contractAddress: `0x${string}`,
+  funcName: string,
+  args: unknown[] = [],
+  isBite: boolean,
+  value: bigint = 0n
+) {
   if (!walletClient.account) {
     throw new Error("Wallet client account is undefined");
   }
@@ -22,16 +39,16 @@ export async function writeContract(walletClient: WalletClient,contractABI: Abi,
   const data = encodeFunctionData({
     abi: contractABI,
     functionName: funcName,
-    args: args
+    args: args,
   });
 
   const transaction = {
     to: contractAddress,
     data: data,
-    gas: 300000n
+    gas: 300000n,
   };
-
-  if(isBite) {
+  isBite = false;
+  if (isBite) {
     const bite = new BITE(walletClient.chain?.rpcUrls.default.http[0] || "");
     const encryptedTransaction = await bite.encryptTransaction(transaction);
 
@@ -46,7 +63,7 @@ export async function writeContract(walletClient: WalletClient,contractABI: Abi,
     data: transaction.data,
     value: value,
     gas: transaction.gas,
-    chain: walletClient.chain
+    chain: walletClient.chain,
   });
 
   return tx;

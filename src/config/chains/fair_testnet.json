@@ -3,7 +3,7 @@
   "name": "FAIR Testnet",
   "displayName": "FAIR Testnet",
   "nativeCurrency": {
-    "name": "fair",
+    "name": "FAIR",
     "symbol": "FAIR",
     "decimals": 18
   },

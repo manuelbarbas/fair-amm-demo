@@ -3,6 +3,7 @@ import type { PublicClient, WalletClient } from "viem";
 import { ERC20_ABI } from "../../../abi/ERC20";
 import { UNISWAP_V2_ROUTER_ABI } from "../../../abi/UniswapV2Router";
 import { readContract, writeContract } from "../../../hooks/useContracts";
+import { isNativeToken, getWETHAddress } from "../../../config/config";
 
 export interface Token {
   address: `0x${string}`;
@@ -34,21 +35,28 @@ export class PoolService {
   ) {}
 
   /**
-   * Get token balance for a specific address
+   * Get token balance for a specific address (handles both native and ERC20 tokens)
    */
   async getTokenBalance(
-    tokenAddress: `0x${string}`,
+    token: Token,
     userAddress: `0x${string}`
   ): Promise<bigint> {
     try {
-      const balance = (await readContract(
-        this.publicClient,
-        ERC20_ABI,
-        tokenAddress,
-        "balanceOf",
-        [userAddress]
-      )) as bigint;
-      return balance;
+      if (isNativeToken(token)) {
+        // For native tokens, get ETH balance
+        const balance = await this.publicClient.getBalance({ address: userAddress });
+        return balance;
+      } else {
+        // For ERC20 tokens
+        const balance = (await readContract(
+          this.publicClient,
+          ERC20_ABI,
+          token.address,
+          "balanceOf",
+          [userAddress]
+        )) as bigint;
+        return balance;
+      }
     } catch (error) {
       console.error("Error fetching token balance:", error);
       return 0n;
@@ -166,9 +174,9 @@ export class PoolService {
     try {
       const deadline = BigInt(Math.floor(Date.now() / 1000) + deadlineMinutes * 60);
 
-      // Check if either token is the wrapped native token
-      const isTokenANative = this.isWrappedNativeToken(tokenA.symbol, chainId);
-      const isTokenBNative = this.isWrappedNativeToken(tokenB.symbol, chainId);
+      // Check if either token is the native token
+      const isTokenANative = isNativeToken(tokenA);
+      const isTokenBNative = isNativeToken(tokenB);
 
       if (isTokenANative || isTokenBNative) {
         // Use addLiquidityETH for native token pairs
@@ -281,16 +289,21 @@ export class PoolService {
 
   /**
    * Calculate minimum amounts with slippage
+   * Uses bigint arithmetic to avoid precision loss
    */
   calculateMinAmounts(
     amountA: bigint,
     amountB: bigint,
     slippagePercent: number = 1
   ): { amountAMin: bigint; amountBMin: bigint } {
-    const slippageMultiplier = (100 - slippagePercent) / 100;
+    // Convert slippage to basis points for precise calculation
+    // e.g., 0.5% = 50 basis points, 1% = 100 basis points
+    const basisPoints = BigInt(Math.floor(slippagePercent * 100));
+    const maxBasisPoints = 10000n; // 100%
     
-    const amountAMin = BigInt(Math.floor(Number(amountA) * slippageMultiplier));
-    const amountBMin = BigInt(Math.floor(Number(amountB) * slippageMultiplier));
+    // Calculate minimum amounts: amount * (10000 - basisPoints) / 10000
+    const amountAMin = (amountA * (maxBasisPoints - basisPoints)) / maxBasisPoints;
+    const amountBMin = (amountB * (maxBasisPoints - basisPoints)) / maxBasisPoints;
 
     return { amountAMin, amountBMin };
   }

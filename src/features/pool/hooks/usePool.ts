@@ -4,6 +4,7 @@ import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, 
 import { createPoolService, type Token, type PoolQuote } from "../services/pool";
 import { getTokens, getRouter } from "../../../config/config";
 import { usePoolBalance } from "./usePoolBalance";
+import { needsPoolApproval, isInvalidPoolPair } from "../../../utils/tokenUtils";
 import type { TransactionSettingsData } from "../../../hooks/useTransactionSettings";
 
 export const usePool = (poolSettings: TransactionSettingsData) => {
@@ -69,18 +70,37 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     }
   }, [chainTokens, chainId]);
 
+  // Enhanced token setters with validation
+  const setTokenAWithValidation = (token: Token | null) => {
+    setTokenA(token);
+    
+    // If selecting a token that creates invalid pair, reset the other token
+    if (token && tokenB && isInvalidPoolPair(token, tokenB, chainId)) {
+      setTokenB(null);
+    }
+  };
+
+  const setTokenBWithValidation = (token: Token | null) => {
+    setTokenB(token);
+    
+    // If selecting a token that creates invalid pair, reset the other token
+    if (token && tokenA && isInvalidPoolPair(tokenA, token, chainId)) {
+      setTokenA(null);
+    }
+  };
+
   // Fetch balances
   useEffect(() => {
     const fetchBalances = async () => {
       if (!poolService || !address) return;
 
       if (tokenA) {
-        const balanceA = await poolService.getTokenBalance(tokenA.address, address);
+        const balanceA = await poolService.getTokenBalance(tokenA, address);
         setBalanceA(balanceA);
       }
 
       if (tokenB) {
-        const balanceB = await poolService.getTokenBalance(tokenB.address, address);
+        const balanceB = await poolService.getTokenBalance(tokenB, address);
         setBalanceB(balanceB);
       }
     };
@@ -94,21 +114,33 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
       if (!poolService || !router || !address) return;
       
       if (tokenA) {
-        const allowanceA = await poolService.getTokenAllowance(
-          tokenA.address,
-          address,
-          router
-        );
-        setAllowanceA(allowanceA);
+        // Only fetch allowance for tokens that need approval
+        if (needsPoolApproval(tokenA)) {
+          const allowanceA = await poolService.getTokenAllowance(
+            tokenA.address,
+            address,
+            router
+          );
+          setAllowanceA(allowanceA);
+        } else {
+          // Native tokens don't need allowance, set to max to indicate no approval needed
+          setAllowanceA(BigInt(Number.MAX_SAFE_INTEGER));
+        }
       }
 
       if (tokenB) {
-        const allowanceB = await poolService.getTokenAllowance(
-          tokenB.address,
-          address,
-          router
-        );
-        setAllowanceB(allowanceB);
+        // Only fetch allowance for tokens that need approval
+        if (needsPoolApproval(tokenB)) {
+          const allowanceB = await poolService.getTokenAllowance(
+            tokenB.address,
+            address,
+            router
+          );
+          setAllowanceB(allowanceB);
+        } else {
+          // Native tokens don't need allowance, set to max to indicate no approval needed
+          setAllowanceB(BigInt(Number.MAX_SAFE_INTEGER));
+        }
       }
     };
 
@@ -152,8 +184,8 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
       return;
     }
 
-    // Native tokens don't need approval
-    if (poolService.isWrappedNativeToken(tokenA.symbol, chainId)) {
+    // Check if token needs approval using shared utility
+    if (!needsPoolApproval(tokenA)) {
       setIsApprovedA(true);
       return;
     }
@@ -174,8 +206,8 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
       return;
     }
 
-    // Native tokens don't need approval
-    if (poolService.isWrappedNativeToken(tokenB.symbol, chainId)) {
+    // Check if token needs approval using shared utility
+    if (!needsPoolApproval(tokenB)) {
       setIsApprovedB(true);
       return;
     }
@@ -245,12 +277,24 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
       const amountADesired = parseUnits(amountA, tokenA.decimals);
       const amountBDesired = parseUnits(amountB, tokenB.decimals);
       
-      // Calculate minimum amounts with slippage protection
+      // For new pools, use very liberal minimum amounts since there's no existing ratio to maintain
+      // We'll use a small percentage (like 5%) or 1 wei minimum to prevent MEV attacks but allow pool creation
+      const minSlippage = Math.max(poolSettings.slippage.value, 5); // Minimum 5% slippage for new pools
       const { amountAMin, amountBMin } = poolService.calculateMinAmounts(
         amountADesired,
         amountBDesired,
-        poolSettings.slippage.value
+        minSlippage
       );
+      
+      console.log('Pool creation amounts:', {
+        tokenA: tokenA.symbol,
+        tokenB: tokenB.symbol,
+        amountADesired: amountADesired.toString(),
+        amountBDesired: amountBDesired.toString(),
+        amountAMin: amountAMin.toString(),
+        amountBMin: amountBMin.toString(),
+        slippage: minSlippage
+      });
       
       const txHash = await poolService.addLiquidity(
         tokenA,
@@ -312,8 +356,8 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     parseFloat(amountA) > 0 && parseFloat(amountB) > 0 && 
     isApprovedA && isApprovedB;
 
-  const needsApprovalA = tokenA && amountA && parseFloat(amountA) > 0 && !isApprovedA;
-  const needsApprovalB = tokenB && amountB && parseFloat(amountB) > 0 && !isApprovedB;
+  const needsApprovalA = tokenA && amountA && parseFloat(amountA) > 0 && needsPoolApproval(tokenA) && !isApprovedA;
+  const needsApprovalB = tokenB && amountB && parseFloat(amountB) > 0 && needsPoolApproval(tokenB) && !isApprovedB;
 
   return {
     // State
@@ -340,8 +384,8 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     needsApprovalB,
     
     // Actions
-    setTokenA,
-    setTokenB,
+    setTokenA: setTokenAWithValidation,
+    setTokenB: setTokenBWithValidation,
     setAmountA,
     setAmountB,
     setSelectedFeeTier,
