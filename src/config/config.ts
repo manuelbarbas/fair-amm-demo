@@ -126,17 +126,33 @@ export const getChainById = (chainId: number) => {
   return chains.find(chain => chain.id === chainId)
 }
 
-// Get all available tokens across all chains
+// Get all available tokens across all chains (including native tokens)
 export const getAllTokensWithChain = () => {
-  const allTokens: Array<TokenConfig & { chainId: number; chainName: string }> = []
+  const allTokens: Array<TokenConfig & { chainId: number; chainName: string; isNative?: boolean }> = []
   
   chainMetadata.forEach(chain => {
+    // Add native token
+    const chainConfig = chainConfigurations.find(c => c.id === chain.id)
+    if (chainConfig) {
+      allTokens.push({
+        address: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+        decimals: chainConfig.nativeCurrency.decimals,
+        symbol: chainConfig.nativeCurrency.symbol,
+        name: chainConfig.nativeCurrency.name,
+        chainId: chain.id,
+        chainName: chain.name,
+        isNative: true,
+      })
+    }
+    
+    // Add ERC20 tokens
     const chainTokens = getTokens(chain.id)
     Object.values(chainTokens).forEach(token => {
       allTokens.push({
         ...token,
         chainId: chain.id,
         chainName: chain.name,
+        isNative: false,
       })
     })
   })
@@ -153,6 +169,8 @@ import usdtTokenIcon from '../assets/usdt_token.png'
 // Dynamic token icon mapping
 export const getTokenIcon = (symbol: string): string => {
   const iconMap: Record<string, string> = {
+    'FAIR': fairTokenIcon,    // Native FAIR token
+    'BITE': fairTokenIcon,    // Native BITE token
     'WFAIR': fairTokenIcon,
     'WBITE': fairTokenIcon,
     'SKL': sklTokenIcon,
@@ -172,6 +190,51 @@ export const isNativeWrappedToken = (symbol: string): boolean => {
 // Get native tokens for all chains
 export const getNativeTokens = (): string[] => {
   return chainMetadata.map(chain => `W${chain.nativeSymbol}`)
+}
+
+// NEW: Native token utilities for ETH swaps
+
+// Check if a token is the native token (FAIR, BITE)
+export const isNativeToken = (token: TokenConfig): boolean => {
+  return token.address === '0x0000000000000000000000000000000000000000'
+}
+
+// Get native currency info for a chain
+export const getNativeCurrency = (chainId: number) => {
+  const chainConfig = chainConfigurations.find(c => c.id === chainId)
+  return chainConfig?.nativeCurrency
+}
+
+// Get WETH (wrapped native token) address for a chain
+export const getWETHAddress = (chainId: number): `0x${string}` | null => {
+  const chainConfig = chainConfigurations.find(c => c.id === chainId)
+  if (!chainConfig) return null
+  
+  const nativeSymbol = chainConfig.nativeCurrency.symbol
+  const wrappedSymbol = `W${nativeSymbol}`
+  
+  // Look for wrapped version in tokens
+  const tokens = chainConfig.tokens
+  for (const token of Object.values(tokens)) {
+    if (token.symbol === wrappedSymbol) {
+      return token.address as `0x${string}`
+    }
+  }
+  
+  return null
+}
+
+// Create a native token representation for a chain
+export const createNativeToken = (chainId: number): TokenConfig | null => {
+  const nativeCurrency = getNativeCurrency(chainId)
+  if (!nativeCurrency) return null
+  
+  return {
+    address: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+    decimals: nativeCurrency.decimals,
+    symbol: nativeCurrency.symbol,
+    name: nativeCurrency.name,
+  }
 }
 
 // Backward compatibility - defaults to first available chain

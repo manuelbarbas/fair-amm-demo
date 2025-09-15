@@ -47,13 +47,12 @@ const WalletButton: React.FC = () => {
   if (!isConnected || !address) {
     // This uses Web3Modal's global styling, which is correct.
     return (
-      <div>
+      <div >
         <w3m-button />
       </div>
     );
   }
 
-  // 2. Replace all className strings with {styles.className}
   return (
     <div className={styles.walletButtonContainer} ref={dropdownRef}>
       <button

@@ -30,9 +30,6 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       {
-        // --- MODIFICATION 2: Simplify the index route ---
-        // The index route now directly renders the <Trade /> feature.
-        // The custom LazyWrapper is removed in favor of a direct <Suspense> component.
         index: true,
         element: (
             <Suspense fallback={<LoadingSpinner />}>
@@ -41,8 +38,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        // --- MODIFICATION 3: Redirect '/swap' to '/' ---
-        // This removes the duplicate route and creates a single source of truth.
+
         path: 'swap',
         element: <Navigate to="/" replace />,
       },

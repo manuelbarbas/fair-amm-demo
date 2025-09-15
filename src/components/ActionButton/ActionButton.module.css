@@ -1,0 +1,120 @@
+/* ActionButton Component Styles */
+
+.actionButton {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-button);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+}
+
+.actionButton:hover:not(.disabled):not(.loading) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.actionButton:active:not(.disabled):not(.loading) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Primary variant (main action buttons like Swap, Create Pool) */
+.actionButton.primary {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.actionButton.primary:hover:not(.disabled):not(.loading) {
+  background: var(--button-primary-hover);
+}
+
+/* Secondary variant (less important actions) */
+.actionButton.secondary {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.actionButton.secondary:hover:not(.disabled):not(.loading) {
+  background: var(--background-tertiary);
+  border-color: var(--border-secondary);
+}
+
+/* Approve variant (approval buttons with distinct styling) */
+.actionButton.approve {
+  background: var(--accent-teal);
+  color: white;
+}
+
+.actionButton.approve:hover:not(.disabled):not(.loading) {
+  background: var(--accent-teal);
+  opacity: 0.9;
+}
+
+/* Disabled state */
+.actionButton.disabled {
+  background: var(--text-tertiary) !important;
+  color: var(--text-disabled, #95a5a6) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.6;
+  border: none !important;
+}
+
+/* Loading state */
+.actionButton.loading {
+  cursor: wait !important;
+  opacity: 0.8;
+  position: relative;
+}
+
+.actionButton.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .actionButton {
+    font-size: 16px;
+    padding: 16px;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .actionButton {
+    font-size: 15px;
+    padding: 14px;
+    min-height: 48px;
+    border-radius: 12px;
+  }
+}

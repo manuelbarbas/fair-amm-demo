@@ -89,12 +89,12 @@
 
 .poolStep.active {
   background: var(--background-secondary);
-  border-color: var(--primary-blue);
+  border-color: var(--primary-emerald);
 }
 
 .poolStep.completed {
   background: var(--background-secondary);
-  border-color: var(--primary-green, #27ae60); /* Added a fallback color */
+  border-color: var(--primary-emerald);
 }
 
 .poolStep.disabled {
@@ -116,12 +116,12 @@
 }
 
 .poolStep.active .stepNumber {
-  background: var(--primary-blue);
+  background: var(--primary-emerald);
   color: white;
 }
 
 .poolStep.completed .stepNumber {
-  background: var(--primary-green, #27ae60);
+  background: var(--primary-emerald);
   color: white;
 }
 
@@ -229,8 +229,8 @@
 }
 
 .feeTierDetail {
-  background: var(--primary-blue-light);
-  color: var(--primary-blue);
+  background: var(--primary-emerald-light);
+  color: var(--primary-emerald);
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 12px;
@@ -240,7 +240,7 @@
 .feeTierRewards {
   font-size: 14px;
   font-weight: 600;
-  color: var(--primary-purple, #9b59b6); /* Added a fallback color */
+  color: var(--accent-teal);
 }
 
 .feeTierDescription {
@@ -309,7 +309,7 @@
   border-radius: 50%;
   background: var(--background-primary);
   border: 2px solid var(--border-primary);
-  color: var(--primary-blue);
+  color: var(--accent-teal);
   font-size: 18px;
   font-weight: 700;
   display: flex;
@@ -337,7 +337,7 @@
 }
 
 .feeBadge {
-  background: var(--primary-blue);
+  background: var(--primary-emerald);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
@@ -589,7 +589,7 @@
 }
 
 .infoIcon:hover {
-  color: var(--primary-blue);
+  color: var(--primary-emerald);
 }
 
 .infoTooltip {

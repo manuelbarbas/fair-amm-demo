@@ -1,6 +1,7 @@
 import React, { useState , useMemo} from "react";
 import TokenSelector from "../../../components/TokenSelector/TokenSelector";
 import TokenInputContainer from "../../../components/TokenInputContainer/TokenInputContainer";
+import ActionButton from "../../../components/ActionButton/ActionButton";
 import { usePool } from "../hooks/usePool";
 import { useTransactionSettings } from "../../../hooks/useTransactionSettings";
 // 1. Import the CSS module
@@ -68,52 +69,56 @@ export const PoolCreate: React.FC = () => {
   const renderActionButton = () => {
     if (currentStep === 1) {
       return (
-        <button
-          className={`${styles.continueButton} ${
-            !isStep1Complete ? styles.disabled : ""
-          }`}
-          disabled={!isStep1Complete}
+        <ActionButton
+          variant="secondary"
           onClick={handleContinue}
+          disabled={!isStep1Complete}
+          className={styles.continueButton}
         >
           Continue
-        </button>
+        </ActionButton>
       );
     }
 
     if (needsApprovalA) {
       return (
-        <button
-          className={styles.createPoolButton}
+        <ActionButton
+          variant="approve"
           onClick={handleApproveTokenA}
-          disabled={isConfirming}
+          loading={isConfirming}
+          loadingText="Approving..."
+          className={styles.createPoolButton}
         >
-          {isConfirming ? "Approving..." : `Approve ${tokenA?.symbol}`}
-        </button>
+          Approve {tokenA?.symbol}
+        </ActionButton>
       );
     }
 
     if (needsApprovalB) {
       return (
-        <button
-          className={styles.createPoolButton}
+        <ActionButton
+          variant="approve"
           onClick={handleApproveTokenB}
-          disabled={isConfirming}
+          loading={isConfirming}
+          loadingText="Approving..."
+          className={styles.createPoolButton}
         >
-          {isConfirming ? "Approving..." : `Approve ${tokenB?.symbol}`}
-        </button>
+          Approve {tokenB?.symbol}
+        </ActionButton>
       );
     }
 
     return (
-      <button
-        className={`${styles.createPoolButton} ${
-          !canCreatePool ? styles.disabled : ""
-        }`}
-        disabled={!canCreatePool || isConfirming}
+      <ActionButton
+        variant="primary"
         onClick={handleCreatePool}
+        disabled={!canCreatePool}
+        loading={isConfirming}
+        loadingText="Creating Pool..."
+        className={styles.createPoolButton}
       >
-        {isConfirming ? "Creating Pool..." : "Create Pool"}
-      </button>
+        Create Pool
+      </ActionButton>
     );
   };
 
@@ -295,7 +300,7 @@ export const PoolCreate: React.FC = () => {
                             Initial Price: 1 {tokenA.symbol} ={" "}
                             {(
                               parseFloat(amountB) / parseFloat(amountA)
-                            ).toFixed(6)}{" "}
+                            ).toFixed(1)}{" "}
                             {tokenB.symbol}
                           </div>
                           <div>Your Pool Share: 100%</div>

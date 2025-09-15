@@ -1,6 +1,6 @@
 import React from "react";
-import { useAccount } from "wagmi";
 import TokenInputContainer from "../../../../components/TokenInputContainer/TokenInputContainer";
+import ActionButton from "../../../../components/ActionButton/ActionButton";
 import { useSwap } from "../hooks/useSwap";
 import type { TransactionSettingsData } from "../../../../hooks/useTransactionSettings";
 // 1. Import the CSS module
@@ -11,7 +11,6 @@ interface SwapProps {
 }
 
 const Swap: React.FC<SwapProps> = ({ settings }) => {
-  const { address } = useAccount();
 
   const {
     fromToken,
@@ -76,22 +75,27 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
       </div>
 
       {/* Action Button */}
-      {address && !isApproved && fromAmount ? (
-        <button
-          className={styles.approveButton}
+      {!isApproved && fromAmount ? (
+        <ActionButton
+          variant="approve"
           onClick={handleApprove}
-          disabled={isConfirming}
+          loading={isConfirming}
+          loadingText="Approving..."
+          className={styles.approveButton}
         >
-          {isConfirming ? "Approving..." : `Approve ${fromToken?.symbol}`}
-        </button>
+          Approve {fromToken?.symbol}
+        </ActionButton>
       ) : (
-        <button
-          className={styles.swapButton}
+        <ActionButton
+          variant="primary"
           onClick={handleSwap}
-          disabled={!fromAmount || !toAmount || isConfirming}
+          disabled={!fromAmount || !toAmount}
+          loading={isConfirming}
+          loadingText="Swapping..."
+          className={styles.swapButton}
         >
-          {isConfirming ? "Swapping..." : "Swap"}
-        </button>
+          Swap
+        </ActionButton>
       )}
 
       {/* Confirmation Message */}
