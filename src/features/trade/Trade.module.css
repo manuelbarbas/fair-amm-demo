@@ -41,7 +41,6 @@
  * Hover state for inactive navigation buttons.
  */
 .nav button:not(.active):hover {
-  background: var(--background-tertiary);
   color: var(--text-primary);
 }
 

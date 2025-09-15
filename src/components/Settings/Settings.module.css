@@ -24,7 +24,6 @@
  * Hover effect for the settings icon button.
  */
 .settingsIconButton:hover {
-  background: var(--background-tertiary);
   color: var(--text-primary);
   transform: rotate(45deg);
 }

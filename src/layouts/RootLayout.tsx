@@ -16,7 +16,7 @@ const RootLayout: React.FC = () => {
         <header className={styles.topHeader}>
           <div className={styles.navSection}>
             <NavLink to="/" className={styles.logoLink}>
-              <h1>FAIRNESS</h1>
+              <h1>FIDERE</h1>
             </NavLink>
             <nav>
               <NavLink 

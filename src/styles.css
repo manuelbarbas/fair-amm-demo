@@ -1,9 +1,18 @@
 /* Global Theme Variables */
 :root {
-  /* Primary Blue - Used in both themes */
-  --primary-blue: rgb(59, 130, 246);
-  --primary-blue-hover: rgb(37, 99, 235);
-  --primary-blue-light: rgba(59, 130, 246, 0.1);
+  /* Primary Emerald - Main brand color */
+  --primary-emerald: rgb(16, 185, 129);
+  --primary-emerald-hover: rgb(5, 150, 105);
+  --primary-emerald-hover-2: rgb(16, 185, 129);
+  --primary-emerald-light: rgba(16, 185, 129, 0.1);
+  --primary-emerald-dark: rgb(2, 41, 28);
+  
+  --primary-emerald-light-2: rgb(179, 245, 223);
+  
+  /* Teal/Cyan Accents */
+  --accent-teal: rgb(20, 184, 166);
+  --accent-cyan: rgb(6, 182, 212);
+  --accent-teal-light: rgba(20, 184, 166, 0.1);
   
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -21,18 +30,18 @@
 :root,
 [data-theme="dark"],
 .dark {
-  /* Backgrounds */
-  --background-primary: rgb(31, 31, 31);
-  --background-secondary: rgb(44, 47, 54);
-  --background-tertiary: rgb(51, 54, 61);
-  --background-modal: rgba(41, 43, 48, 0.95);
+  /* Backgrounds with emerald tones */
+  --background-primary: var(--primary-emerald-hover);
+  --background-secondary: rgb(31, 41, 55);
+  --background-tertiary: rgb(55, 65, 81);
+  --background-modal: rgba(17, 24, 39, 0.95);
   --background-overlay: rgba(0, 0, 0, 0.8);
   
   /* Text Colors */
-  --text-primary: rgb(255, 255, 255);
-  --text-secondary: rgb(152, 161, 192);
+  --text-primary: rgb(243, 244, 246);
+  --text-secondary: rgb(156, 163, 175);
   --text-tertiary: rgb(107, 114, 128);
-  --text-inverse: rgb(31, 31, 31);
+  --text-inverse: rgb(17, 24, 39);
   
   /* Border Colors */
   --border-primary: rgb(44, 47, 54);
@@ -40,45 +49,50 @@
   --border-tertiary: rgb(75, 85, 99);
   
   /* Input Styles */
-  --input-background: rgb(44, 47, 54);
-  --input-border: rgb(64, 68, 79);
-  --input-border-focus: var(--primary-blue);
+  --input-background: rgb(31, 41, 55);
+  --input-border: rgb(55, 65, 81);
+  --input-border-focus: var(--primary-emerald);
   --input-text: var(--text-primary);
   --input-placeholder: var(--text-secondary);
   
   /* Button Styles */
-  --button-primary-bg: var(--primary-blue);
-  --button-primary-hover: var(--primary-blue-hover);
+  --button-primary-bg: var(--primary-emerald);
+  --button-primary-hover: var(--primary-emerald-hover);
   --button-primary-text: white;
   --button-secondary-bg: var(--background-secondary);
   --button-secondary-hover: var(--background-tertiary);
   --button-secondary-text: var(--text-primary);
   --button-secondary-border: var(--border-secondary);
+
+  --title-backgorund: var(--primary-emerald-light-2);
   
   /* Shadows for dark theme */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --shadow-button: 0 2px 8px rgba(59, 130, 246, 0.2);
+  --shadow-button: 0 2px 8px rgba(16, 185, 129, 0.3);
   --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.2);
   
-  /* Background Image */
-  --background-image: url('./assets/fair_bg_black.png');
+  /* Simple Background System - Dark Mode */
+  --page-background: var(--primary-emerald-dark);
+
 }
 
 /* Light Theme */
 [data-theme="light"],
 .light {
-  /* Backgrounds */
-  --background-primary: #ffffff;
-  --background-secondary: rgb(248, 250, 252);
-  --background-tertiary: rgb(241, 245, 249);
+  /* Backgrounds with light tones */
+  --background-primary: rgb(255, 255, 255);
+  --background-secondary: rgb(249, 250, 251);
+  --background-tertiary: rgb(243, 244, 246);
   --background-modal: rgba(255, 255, 255, 0.95);
   --background-overlay: rgba(0, 0, 0, 0.5);
   
-  /* Text Colors */
+  /* Text Colors - Charcoal for light mode */
   --text-primary: rgb(31, 41, 55);
   --text-secondary: rgb(75, 85, 99);
   --text-tertiary: rgb(107, 114, 128);
   --text-inverse: rgb(255, 255, 255);
+
+  --text-main: var(--primary-emerald-dark);
   
   /* Border Colors */
   --border-primary: rgb(229, 231, 235);
@@ -88,44 +102,42 @@
   /* Input Styles */
   --input-background: rgb(255, 255, 255);
   --input-border: rgb(209, 213, 219);
-  --input-border-focus: var(--primary-blue);
+  --input-border-focus: var(--primary-emerald);
   --input-text: var(--text-primary);
   --input-placeholder: var(--text-secondary);
   
   /* Button Styles */
-  --button-primary-bg: var(--primary-blue);
-  --button-primary-hover: var(--primary-blue-hover);
+  --button-primary-bg: var(--primary-emerald-light-2);
+  --button-primary-hover: var(--primary-emerald-hover);
   --button-primary-text: white;
   --button-secondary-bg: var(--background-primary);
   --button-secondary-hover: var(--background-secondary);
   --button-secondary-text: var(--text-primary);
   --button-secondary-border: var(--border-secondary);
   
+  --title-backgorund: var(--primary-emerald);
+
   /* Shadows for light theme */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.15);
-  --shadow-button: 0 2px 8px rgba(59, 130, 246, 0.15);
+  --shadow-button: 0 2px 8px rgba(16, 185, 129, 0.2);
   --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.1);
   
-  /* Background Image */
-  --background-image: url('./assets/fair_bg.png');
+  /* Simple Background System - Light Mode */
+  --page-background: var(--primary-emerald-light);
 }
 
-/* Global body styles */
+
+/* Simple background system */
 body {
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+  background: var(--page-background);
+  background-attachment: fixed;
+  transition: background-color var(--transition-normal);
 }
 
-/* Background image application */
 .app {
-  background-image: var(--background-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   min-height: 100vh;
-  transition: background-image var(--transition-normal);
+  position: relative;
+  padding: 2rem;
 }
 
 
@@ -140,7 +152,7 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background-primary);
+  background: var(--page-background);
   color: var(--text-primary);
   min-height: 100vh;
   margin: 0;
@@ -148,18 +160,6 @@ body {
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-/* Transparent blue overlay */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:rgba(185, 218, 255, 0) 50%;
-  pointer-events: none;
-  z-index: -1;
-}
 
 .app {
   min-height: 100vh;
@@ -167,7 +167,8 @@ body::before {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .top-header {
@@ -201,7 +202,7 @@ body::before {
   color: rgb(30, 41, 59);
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -223,7 +224,7 @@ body::before {
   color: rgb(30, 41, 59);
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -277,7 +278,7 @@ body::before {
 .liquidity-button {
   width: 100%;
   padding: 18px;
-  background: rgb(59, 130, 246);
+  background: var(--primary-emerald);
   color: white;
   border: none;
   border-radius: 16px;
@@ -287,13 +288,13 @@ body::before {
   transition: all 0.2s ease;
   margin-top: 20px;
   letter-spacing: 0.02em;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
 }
 
 .liquidity-button:hover {
-  background: rgb(30, 64, 175);
+  background: var(--primary-emerald-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
 }
 
 .liquidity-button:disabled {
@@ -335,7 +336,7 @@ body::before {
   gap: 8px;
   justify-content: center;
   background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--primary-emerald-light);
   border-radius: 16px;
   padding: 6px;
   margin-bottom: 12px;
@@ -353,12 +354,12 @@ body::before {
 }
 
 .chain-option:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--primary-emerald-light);
 }
 
 .chain-option.active {
-  background: rgb(59, 130, 246);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  background: var(--primary-emerald);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 .chain-option:disabled {
@@ -396,7 +397,7 @@ body::before {
   font-size: 12px;
   color: rgb(100, 116, 139);
   padding: 8px 12px;
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--primary-emerald-light);
   border-radius: 8px;
   display: inline-block;
 }
@@ -404,16 +405,17 @@ body::before {
 w3m-button {
   width: 100%;
   --w3m-button-border-radius: 16px;
-  --w3m-button-bg-color: linear-gradient(135deg, #ff6b9d 0%, #c44f95 100%);
+  --w3m-button-bg-color: linear-gradient(135deg, var(--primary-emerald) 0%, var(--primary-emerald-dark) 100%);
   --w3m-button-color: white;
-  --w3m-button-hover-bg-color: linear-gradient(135deg, #ff7ba8 0%, #d15ba6 100%);
+  --w3m-button-hover-bg-color: linear-gradient(135deg, var(--primary-emerald-hover) 0%, var(--primary-emerald-dark) 100%);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .app {
-    padding: 10px;
+    padding: 1rem;
   }
+  
   
   .top-header {
     flex-direction: column;
@@ -438,6 +440,13 @@ w3m-button {
     flex-direction: column;
     gap: 8px;
   }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 0.5rem;
+  }
+  
 }
 
 

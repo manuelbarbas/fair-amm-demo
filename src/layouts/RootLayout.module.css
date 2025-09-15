@@ -3,16 +3,11 @@
  * This uses the global theme variable for the background image.
  */
 .app {
-  background-image: var(--background-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   min-height: 100vh;
-  transition: background-image var(--transition-normal);
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
   padding: 1rem 2rem; /* Using rem for better scalability */
 }
 
@@ -62,11 +57,12 @@
 .logoLink h1 {
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  background: var(--title-backgorund);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0; /* Reset margin */
+  -webkit-text-stroke: 1px rgb(0, 0, 0);
 }
 
 /*
@@ -87,7 +83,6 @@
  */
 .navLink:hover {
   color: var(--text-primary);
-  background-color: var(--background-tertiary);
 }
 
 /*
@@ -116,6 +111,7 @@
     padding: 1rem;
   }
   
+  
   .topHeader {
     flex-direction: column;
     gap: 1.5rem;
@@ -130,5 +126,16 @@
   
   .logoLink h1 {
     font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 0.75rem;
+  }
+  
+  
+  .logoLink h1 {
+    font-size: 1.5rem;
   }
 }

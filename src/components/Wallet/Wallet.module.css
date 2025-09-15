@@ -4,6 +4,14 @@
   position: relative;
 }
 
+/* Disconnected wallet wrapper */
+.disconnectedWalletWrapper {
+  background: var(--title-background);
+  border-radius: 12px;
+  padding: 2px; /* Small padding to create border effect */
+  transition: all var(--transition-normal);
+}
+
 .connectedWalletButton {
   display: flex;
   align-items: center;

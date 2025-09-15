@@ -131,7 +131,7 @@
 
 .theme-option.active {
   background: var(--primary-blue);
-  color: white;
+  color: var(--text-primary);
   box-shadow: var(--shadow-button);
 }
 
