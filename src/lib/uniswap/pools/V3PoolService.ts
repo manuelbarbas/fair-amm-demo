@@ -1,9 +1,34 @@
 import type { PublicClient, WalletClient } from 'viem';
+import { zeroAddress } from 'viem';
 import { ERC20_ABI } from '../../../abi/ERC20';
 import { UNISWAP_V3_POSITION_MANAGER_ABI } from '../../../abi/V3PositionManager';
 import { getV3NFTPositionManagerAddress, isNativeToken } from '../../../config/config';
 import type { V3PoolCreationParams, V3PoolQuote, BasePoolOptions, V3FeeTier } from './types';
 import { readContract, writeContract } from '../../../hooks/useContracts';
+
+const UNISWAP_V3_FACTORY_ABI = [
+  {
+    inputs: [
+      { internalType: 'address', name: 'tokenA', type: 'address' },
+      { internalType: 'address', name: 'tokenB', type: 'address' },
+      { internalType: 'uint24', name: 'fee', type: 'uint24' },
+    ],
+    name: 'getPool',
+    outputs: [{ internalType: 'address', name: 'pool', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+
+const UNISWAP_V3_POOL_ABI = [
+  {
+    inputs: [],
+    name: 'liquidity',
+    outputs: [{ internalType: 'uint128', name: '', type: 'uint128' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
 
 // V3 math utilities
 const Q96 = 2n ** 96n;
@@ -111,16 +136,21 @@ export class V3PoolService {
    */
   async createPosition(
     params: V3PoolCreationParams,
-    options: BasePoolOptions & { chainId?: number; biteEncryption?: boolean }
+    options: BasePoolOptions & {
+      chainId?: number;
+      biteEncryption?: boolean;
+      skipInitialization?: boolean;
+      waitForInitializationReceipt?: boolean;
+    }
   ): Promise<`0x${string}`> {
     // Default chainId if not provided (fallback to mainnet for now)
-    const chainId = (options as any).chainId || 1;
+    const chainId = options.chainId ?? 1;
     
     return this.createPool(params, {
       ...options,
       user: options.recipient,
       chainId,
-      biteEncryption: (options as any).biteEncryption || false,
+      biteEncryption: options.biteEncryption || false,
     });
   }
 
@@ -133,6 +163,8 @@ export class V3PoolService {
       user: `0x${string}`;
       chainId: number;
       biteEncryption?: boolean;
+      skipInitialization?: boolean;
+      waitForInitializationReceipt?: boolean;
     }
   ): Promise<`0x${string}`> {
     if (!this.walletClient) {
@@ -151,36 +183,42 @@ export class V3PoolService {
     const isTokenBNative = isNativeToken(params.tokenB as any);
 
     // Determine token order (token0 < token1 in V3)
-    const token0Address = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.tokenA.address 
-      : params.tokenB.address;
-    
-    const token1Address = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.tokenB.address 
-      : params.tokenA.address;
+    const { token0, token1, swapped } = V3PoolService.sortTokens(
+      params.tokenA.address,
+      params.tokenB.address
+    );
+    const token0Address = token0 as `0x${string}`;
+    const token1Address = token1 as `0x${string}`;
 
-    const amount0Desired = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.amountADesired 
-      : params.amountBDesired;
-    
-    const amount1Desired = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.amountBDesired 
-      : params.amountADesired;
+    const amount0Desired = swapped ? params.amountBDesired : params.amountADesired;
+    const amount1Desired = swapped ? params.amountADesired : params.amountBDesired;
+    const amount0Min = swapped ? params.amountBMin : params.amountAMin;
+    const amount1Min = swapped ? params.amountAMin : params.amountBMin;
 
-    const amount0Min = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.amountAMin 
-      : params.amountBMin;
-    
-    const amount1Min = params.tokenA.address.toLowerCase() < params.tokenB.address.toLowerCase() 
-      ? params.amountBMin 
-      : params.amountAMin;
+    const sqrtPriceForInit = this.resolveInitialSqrtPrice(
+      params.sqrtPriceX96,
+      amount0Desired,
+      amount1Desired
+    );
+
+    if (!options.skipInitialization) {
+      await this.initializePoolIfNeeded({
+        positionManager,
+        token0: token0Address,
+        token1: token1Address,
+        fee: params.fee,
+        sqrtPriceX96: sqrtPriceForInit,
+        biteEncryption: options.biteEncryption,
+        waitForReceipt: options.waitForInitializationReceipt !== false,
+      });
+    }
 
     const mintParams = {
       token0: token0Address,
       token1: token1Address,
       fee: params.fee,
-      tickLower: 304500,
-      tickUpper: 318420,
+      tickLower: params.tickLower,
+      tickUpper: params.tickUpper,
       amount0Desired,
       amount1Desired,
       amount0Min,
@@ -206,6 +244,124 @@ export class V3PoolService {
       !!options.biteEncryption,
       value
     );
+  }
+
+  private resolveInitialSqrtPrice(
+    providedSqrtPrice: bigint | undefined,
+    amount0Desired: bigint,
+    amount1Desired: bigint
+  ): bigint {
+    if (providedSqrtPrice && providedSqrtPrice > 0n) {
+      return providedSqrtPrice;
+    }
+
+    if (amount0Desired === 0n || amount1Desired === 0n) {
+      return Q96;
+    }
+
+    try {
+      const ratio = Number(amount1Desired) / Number(amount0Desired);
+      if (!Number.isFinite(ratio) || ratio <= 0) {
+        return Q96;
+      }
+      const sqrtPrice = Math.sqrt(ratio);
+      const derived = BigInt(Math.floor(sqrtPrice * Number(Q96)));
+      return derived > 0n ? derived : Q96;
+    } catch (error) {
+      console.warn('Falling back to default sqrtPriceX96:', error);
+      return Q96;
+    }
+  }
+
+  async initializePoolIfNeeded(params: {
+    positionManager: `0x${string}`;
+    token0: `0x${string}`;
+    token1: `0x${string}`;
+    fee: V3FeeTier;
+    sqrtPriceX96: bigint;
+    biteEncryption?: boolean;
+    waitForReceipt?: boolean;
+  }): Promise<{ executed: boolean; txHash?: `0x${string}` }> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available');
+    }
+
+    const sqrtPrice = params.sqrtPriceX96 > 0n ? params.sqrtPriceX96 : Q96;
+
+    const shouldInitialize = await this.needsPoolInitialization({
+      positionManager: params.positionManager,
+      token0: params.token0,
+      token1: params.token1,
+      fee: params.fee,
+    });
+
+    if (!shouldInitialize) {
+      return { executed: false };
+    }
+
+    const txHash = await writeContract(
+      this.walletClient,
+      UNISWAP_V3_POSITION_MANAGER_ABI,
+      params.positionManager,
+      'createAndInitializePoolIfNecessary',
+      [params.token0, params.token1, params.fee, sqrtPrice],
+      !!params.biteEncryption
+    );
+
+    if (params.waitForReceipt !== false) {
+      await this.publicClient.waitForTransactionReceipt({ hash: txHash });
+    }
+
+    return {
+      executed: true,
+      txHash,
+    };
+  }
+
+  async needsPoolInitialization(params: {
+    positionManager: `0x${string}`;
+    token0: `0x${string}`;
+    token1: `0x${string}`;
+    fee: V3FeeTier;
+  }): Promise<boolean> {
+    try {
+      const factory = (await readContract(
+        this.publicClient,
+        UNISWAP_V3_POSITION_MANAGER_ABI,
+        params.positionManager,
+        'factory',
+        []
+      )) as `0x${string}`;
+
+      if (!factory || factory === zeroAddress) {
+        return true;
+      }
+
+      const pool = (await readContract(
+        this.publicClient,
+        UNISWAP_V3_FACTORY_ABI,
+        factory,
+        'getPool',
+        [params.token0, params.token1, params.fee]
+      )) as `0x${string}`;
+
+      if (!pool || pool === zeroAddress) {
+        return true;
+      }
+
+      const liquidity = (await readContract(
+        this.publicClient,
+        UNISWAP_V3_POOL_ABI,
+        pool,
+        'liquidity',
+        []
+      )) as bigint;
+
+      return liquidity === 0n;
+    } catch (error) {
+      console.warn('Unable to verify V3 pool initialization state. Defaulting to initialize.', error);
+      return true;
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ import React from 'react';
 import TokenSelector from '../../../components/TokenSelector/TokenSelector';
 import TokenInputContainer from '../../../components/TokenInputContainer/TokenInputContainer';
 import ActionButton from '../../../components/ActionButton/ActionButton';
+import TransactionSteps from '../../../components/TransactionSteps/TransactionSteps';
 import type { Token } from '../services/pool';
 import type { V2TransactionStep } from '../hooks/useV2PoolLogic';
 import styles from './PoolCreate.module.css';
@@ -58,22 +59,6 @@ export const V2PoolCreate: React.FC<V2PoolCreateProps> = ({
 }) => {
   const isStep1Complete = tokenA && tokenB;
   const v2FeeTier = 0.3;
-  const getStatusClassName = (status: V2TransactionStep['status']) =>
-    `${styles.transactionStepStatus} ${styles[`transactionStepStatus--${status}`] ?? ''}`;
-  const getStatusLabel = (status: V2TransactionStep['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'inProgress':
-        return 'Processing';
-      case 'completed':
-        return 'Completed';
-      case 'error':
-        return 'Failed';
-      default:
-        return '';
-    }
-  };
 
   const renderActionButton = () => {
     if (currentStep === 1) {
@@ -219,28 +204,7 @@ export const V2PoolCreate: React.FC<V2PoolCreateProps> = ({
           
           {renderActionButton()}
 
-          {transactionSteps.length > 0 && (
-            <div className={styles.transactionChecklist}>
-              <div className={styles.transactionChecklistTitle}>On-chain transactions</div>
-              <ul className={styles.transactionStepsList}>
-                {transactionSteps.map((step) => (
-                  <li key={step.id} className={styles.transactionStepRow}>
-                    <span className={getStatusClassName(step.status)}>
-                      {step.status === 'completed'
-                        ? '✓'
-                        : step.status === 'error'
-                        ? '!'
-                        : step.status === 'inProgress'
-                        ? '•'
-                        : ''}
-                    </span>
-                    <span className={styles.transactionStepLabel}>{step.label}</span>
-                    <span className={styles.transactionStepState}>{getStatusLabel(step.status)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <TransactionSteps steps={transactionSteps} />
         </>
       )}
     </>

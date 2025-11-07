@@ -91,6 +91,15 @@
   transition: all var(--transition-normal);
 }
 
+.poolStep.clickable {
+  cursor: pointer;
+}
+
+.poolStep.clickable:focus-visible {
+  outline: 2px solid var(--primary-emerald);
+  outline-offset: 2px;
+}
+
 .poolStep.active {
   background: var(--input-background);
   border-color: var(--primary-emerald);
@@ -537,89 +546,6 @@
   transform: none;
   box-shadow: none;
   opacity: 0.6;
-}
-
-/* Transaction Checklist */
-.transactionChecklist {
-  margin-top: 16px;
-  padding: 16px;
-  border: 1px solid var(--input-border);
-  border-radius: 14px;
-  background: var(--input-background);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.transactionChecklistTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.transactionStepsList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.transactionStepRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.transactionStepLabel {
-  flex: 1;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.transactionStepState {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.transactionStepStatus {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid var(--border-primary);
-  font-size: 12px;
-  font-weight: 600;
-  color: transparent;
-  transition: all var(--transition-normal);
-}
-
-.transactionStepStatus--pending {
-  background: transparent;
-}
-
-.transactionStepStatus--inProgress {
-  background: var(--accent-teal);
-  color: var(--background-primary);
-  border-color: var(--accent-teal);
-}
-
-.transactionStepStatus--completed {
-  background: var(--primary-emerald);
-  color: #ffffff;
-  border-color: var(--primary-emerald);
-}
-
-.transactionStepStatus--error {
-  background: var(--error, #ff4d4f);
-  color: #ffffff;
-  border-color: transparent;
 }
 
 /* Responsive Design */

@@ -41,6 +41,7 @@ export interface UseV2PoolLogicParams {
   setHash: (hash: `0x${string}` | undefined) => void;
   setIsConfirming: (confirming: boolean) => void;
   isActive: boolean;
+  onPoolCreated?: (hash: `0x${string}`) => void;
 }
 
 /**
@@ -53,7 +54,8 @@ export const useV2PoolLogic = ({
   poolSettings, 
   setHash, 
   setIsConfirming,
-  isActive
+  isActive,
+  onPoolCreated
 }: UseV2PoolLogicParams) => {
   const chainId = useChainId();
   const { address } = useAccount();
@@ -284,6 +286,10 @@ export const useV2PoolLogic = ({
 
         updateTransactionStep(step.id, { status: 'completed', txHash });
         setIsConfirming(false);
+
+        if (step.id === 'create') {
+          onPoolCreated?.(txHash);
+        }
       }
     } catch (error) {
       console.error('Error executing V2 pool sequence:', error);

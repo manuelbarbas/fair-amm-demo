@@ -1,0 +1,81 @@
+.container {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--input-border);
+  border-radius: 14px;
+  background: var(--input-background);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.state {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.statusIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-primary);
+  font-size: 12px;
+  font-weight: 600;
+  color: transparent;
+  transition: all var(--transition-normal);
+}
+
+.statusIcon--pending {
+  background: transparent;
+}
+
+.statusIcon--inProgress {
+  background: var(--accent-teal);
+  color: var(--background-primary);
+  border-color: var(--accent-teal);
+}
+
+.statusIcon--completed {
+  background: var(--primary-emerald);
+  color: #ffffff;
+  border-color: var(--primary-emerald);
+}
+
+.statusIcon--error {
+  background: var(--error, #ff4d4f);
+  color: #ffffff;
+  border-color: transparent;
+}

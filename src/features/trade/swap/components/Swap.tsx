@@ -1,6 +1,7 @@
 import React from "react";
 import TokenInputContainer from "../../../../components/TokenInputContainer/TokenInputContainer";
 import ActionButton from "../../../../components/ActionButton/ActionButton";
+import TransactionSteps from "../../../../components/TransactionSteps/TransactionSteps";
 import { useSwap } from "../hooks/useSwap";
 import type { TransactionSettingsData } from "../../../../hooks/useTransactionSettings";
 // 1. Import the CSS module
@@ -22,6 +23,8 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
     balanceTo,
     isConfirming,
     isConfirmed,
+    transactionSteps,
+    isSequenceRunning,
     setFromToken,
     setToToken,
     setFromAmount,
@@ -83,6 +86,7 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
           }}
           loading={isConfirming}
           loadingText="Approving..."
+          disabled={isSequenceRunning}
           className={styles.approveButton}
         >
           Approve {fromToken?.symbol}
@@ -93,7 +97,7 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
           onClick={() => {
             handleSwap().catch(() => undefined);
           }}
-          disabled={!fromAmount || !toAmount}
+          disabled={!fromAmount || !toAmount || isSequenceRunning}
           loading={isConfirming}
           loadingText="Swapping..."
           className={styles.swapButton}
@@ -101,6 +105,8 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
           Swap
         </ActionButton>
       )}
+
+      <TransactionSteps steps={transactionSteps} />
 
       {/* Confirmation Message */}
       {isConfirmed && (

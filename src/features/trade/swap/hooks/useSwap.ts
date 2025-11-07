@@ -6,6 +6,21 @@ import { getTokens, createNativeToken, getPermit2Address, getRouter, getV3SwapRo
 import type { TransactionSettingsData } from '../../../../hooks/useTransactionSettings';
 import { ERC20_ABI } from '../../../../abi/ERC20';
 
+export type SwapTransactionStepId = 'approve' | 'swap';
+
+export type SwapTransactionStepStatus =
+  | 'pending'
+  | 'inProgress'
+  | 'completed'
+  | 'error';
+
+export interface SwapTransactionStep {
+  id: SwapTransactionStepId;
+  label: string;
+  status: SwapTransactionStepStatus;
+  txHash?: `0x${string}`;
+}
+
 // Helper function to check if a token is native (has zero address)
 const isNativeToken = (token: TokenConfig): boolean => {
   return token.address === '0x0000000000000000000000000000000000000000';
@@ -32,6 +47,8 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
   const [swapHash, setSwapHash] = useState<`0x${string}` | undefined>(undefined);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+  const [transactionSteps, setTransactionSteps] = useState<SwapTransactionStep[]>([]);
+  const [isSequenceRunning, setIsSequenceRunning] = useState(false);
 
   // Create service instance
   const uniswapService = useMemo(() => {
@@ -54,6 +71,71 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
 
     return resolveTarget(quote?.quote.version);
   }, [chainId, quote?.quote.version]);
+
+  const needsApproval = useMemo(() => {
+    if (!fromToken) {
+      return false;
+    }
+
+    if (isNativeToken(fromToken)) {
+      return false;
+    }
+
+    return !isApproved;
+  }, [fromToken, isApproved]);
+
+  const baseSteps = useMemo<SwapTransactionStep[]>(() => {
+    if (!fromToken || !toToken) {
+      return [];
+    }
+
+    const steps: SwapTransactionStep[] = [];
+
+    if (needsApproval) {
+      steps.push({
+        id: 'approve',
+        label: `Approve ${fromToken.symbol}`,
+        status: 'pending',
+      });
+    }
+
+    steps.push({
+      id: 'swap',
+      label: `Swap ${fromToken.symbol} for ${toToken.symbol}`,
+      status: 'pending',
+    });
+
+    return steps;
+  }, [fromToken, toToken, needsApproval]);
+
+  useEffect(() => {
+    if (isSequenceRunning) {
+      return;
+    }
+
+    setTransactionSteps((prev) => {
+      const previousIds = prev.map((step) => step.id).join('|');
+      const nextIds = baseSteps.map((step) => step.id).join('|');
+
+      if (previousIds === nextIds) {
+        return prev.map((step) => {
+          const match = baseSteps.find((candidate) => candidate.id === step.id);
+          return match ? { ...step, label: match.label } : step;
+        });
+      }
+
+      return baseSteps;
+    });
+  }, [baseSteps, isSequenceRunning]);
+
+  const updateTransactionStep = (
+    id: SwapTransactionStepId,
+    updates: Partial<SwapTransactionStep>
+  ) => {
+    setTransactionSteps((prev) =>
+      prev.map((step) => (step.id === id ? { ...step, ...updates } : step))
+    );
+  };
 
   // Wait for transaction receipt
   const { isLoading: isTxConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -209,82 +291,140 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
     }
   }, [isConfirmed, isTxConfirming]);
 
-  // Actions
-  const handleApprove = async () => {
+  const performApproval = async (): Promise<`0x${string}` | undefined> => {
     if (!walletClient) {
-      console.log('Wallet client not available for approval');
-      return;
+      throw new Error('Wallet client not available for approval');
     }
 
     if (!fromToken || isNativeToken(fromToken)) {
-      console.log('No approval needed for native token');
-      return handleSwap();
+      return undefined;
     }
 
     if (!approvalTarget) {
       throw new Error(`Approval target not found for chain ${chainId}`);
     }
 
-    try {
-      setIsConfirming(true);
-      
-      // Approve maximum amount to the swap contract
-      const maxAmount = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-      
-      const txHash = await walletClient.sendTransaction({
-        account: walletClient.account!,
-        to: fromToken.address as `0x${string}`,
-        data: encodeFunctionData({
-          abi: ERC20_ABI,
-          functionName: 'approve',
-          args: [approvalTarget, maxAmount],
-        }),
-        chain: walletClient.chain,
-      });
+    const maxAmount = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
-      if (!publicClient) {
-        throw new Error('Public client not available to confirm approval');
-      }
+    const txHash = await walletClient.sendTransaction({
+      account: walletClient.account!,
+      to: fromToken.address as `0x${string}`,
+      data: encodeFunctionData({
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [approvalTarget, maxAmount],
+      }),
+      chain: walletClient.chain,
+    });
 
-      await publicClient.waitForTransactionReceipt({ hash: txHash });
-
-      setAllowance(maxAmount);
-      setIsApproved(true);
-
-      await handleSwap();
-    } catch (error) {
-      console.error('Error approving token:', error);
-      setIsConfirming(false);
-      throw error;
+    if (!publicClient) {
+      throw new Error('Public client not available to confirm approval');
     }
+
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    setAllowance(maxAmount);
+    setIsApproved(true);
+
+    return txHash;
   };
 
-  const handleSwap = async () => {
+  const performSwap = async (): Promise<`0x${string}` | undefined> => {
     if (!uniswapService || !quote || !address || !fromToken) {
-      return;
+      return undefined;
     }
 
     if (!fromAmount || parseFloat(fromAmount) <= 0) {
-      setIsConfirming(false);
+      return undefined;
+    }
+
+    const swapOptions: UniversalSwapOptions = {
+      slippageTolerance: swapSettings.slippage.value,
+      deadline: Math.floor(Date.now() / 1000) + swapSettings.deadline * 60,
+      recipient: address,
+      amountIn: parseUnits(fromAmount, fromToken.decimals),
+    };
+
+    const txHash = await uniswapService.executeSwap(quote.quote, swapOptions);
+    setSwapHash(txHash);
+
+    if (publicClient) {
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+    }
+
+    return txHash;
+  };
+
+  const runSwapSequence = async (includeApproval: boolean) => {
+    if (!fromToken || !toToken) {
       return;
     }
 
-    try {
-      setIsConfirming(true);
-      const swapOptions: UniversalSwapOptions = {
-        slippageTolerance: swapSettings.slippage.value,
-        deadline: Math.floor(Date.now() / 1000) + swapSettings.deadline * 60,
-        recipient: address,
-        amountIn: parseUnits(fromAmount, fromToken.decimals),
-      };
+    const stepsToExecute = baseSteps.filter(
+      (step) => includeApproval || step.id !== 'approve'
+    );
 
-      const txHash = await uniswapService.executeSwap(quote.quote, swapOptions);
-      setSwapHash(txHash);
-    } catch (error) {
-      console.error('Error swapping tokens:', error);
-      setIsConfirming(false);
-      throw error;
+    if (stepsToExecute.length === 0) {
+      return;
     }
+
+    const requiresSwapStep = stepsToExecute.some((step) => step.id === 'swap');
+    const amountNumeric = fromAmount ? parseFloat(fromAmount) : Number.NaN;
+
+    if (
+      requiresSwapStep &&
+      (!Number.isFinite(amountNumeric) || amountNumeric <= 0)
+    ) {
+      console.warn('Invalid swap amount');
+      return;
+    }
+
+    setTransactionSteps(
+      stepsToExecute.map((step) => ({ ...step, status: 'pending', txHash: undefined }))
+    );
+    setIsSequenceRunning(true);
+    setIsConfirming(true);
+
+    let currentStepId: SwapTransactionStepId | null = null;
+
+    try {
+      for (const step of stepsToExecute) {
+        currentStepId = step.id;
+        updateTransactionStep(step.id, { status: 'inProgress', txHash: undefined });
+
+        let txHash: `0x${string}` | undefined;
+
+        if (step.id === 'approve') {
+          txHash = await performApproval();
+        } else {
+          txHash = await performSwap();
+        }
+
+        if (!txHash) {
+          throw new Error(`Transaction not sent for step ${step.id}`);
+        }
+
+        updateTransactionStep(step.id, { status: 'completed', txHash });
+      }
+    } catch (error) {
+      console.error('Error executing swap sequence:', error);
+      if (currentStepId) {
+        updateTransactionStep(currentStepId, { status: 'error' });
+      }
+      throw error;
+    } finally {
+      setIsSequenceRunning(false);
+      setIsConfirming(false);
+    }
+  };
+
+  // Actions
+  const handleApprove = async () => {
+    return runSwapSequence(true);
+  };
+
+  const handleSwap = async () => {
+    return runSwapSequence(false);
   };
 
   const handleSwitchTokens = () => {
@@ -319,6 +459,8 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
     isConfirming,
     isConfirmed,
     isLoadingQuote,
+    transactionSteps,
+    isSequenceRunning,
     hash: swapHash,
 
     // Actions

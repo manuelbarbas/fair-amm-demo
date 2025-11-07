@@ -2,11 +2,13 @@ import React, { useState, useMemo } from 'react';
 import TokenSelector from '../../../components/TokenSelector/TokenSelector';
 import TokenInputContainer from '../../../components/TokenInputContainer/TokenInputContainer';
 import ActionButton from '../../../components/ActionButton/ActionButton';
+import TransactionSteps from '../../../components/TransactionSteps/TransactionSteps';
 import { InfoIcon } from '../../../components/UI';
 import type { Token } from '../services/pool';
 import type { V3FeeTier, V3RangeSelection } from '../../../lib/uniswap/pools';
 import { V3_FEE_TIER_LABELS } from '../../../lib/uniswap/pools';
 import { V3PoolService } from '../../../lib/uniswap/pools';
+import type { V3TransactionStep } from '../hooks/useV3PoolLogic';
 import styles from './PoolCreate.module.css';
 
 interface V3PoolCreateProps {
@@ -35,13 +37,15 @@ interface V3PoolCreateProps {
   // Approval state
   needsApprovalA: boolean;
   needsApprovalB: boolean;
-  onApproveA: () => Promise<`0x${string}` | undefined>;
-  onApproveB: () => Promise<`0x${string}` | undefined>;
+  onApproveA: () => Promise<void>;
+  onApproveB: () => Promise<void>;
 
   // Pool creation
   canCreatePool: boolean;
-  onCreatePool: () => void;
+  onCreatePool: () => Promise<void>;
   isConfirming: boolean;
+  isSequenceRunning: boolean;
+  transactionSteps: V3TransactionStep[];
 
   // V3-specific state
   selectedFeeTier: V3FeeTier;
@@ -72,6 +76,8 @@ export const V3PoolCreate: React.FC<V3PoolCreateProps> = ({
   canCreatePool,
   onCreatePool,
   isConfirming,
+  isSequenceRunning,
+  transactionSteps,
   selectedFeeTier,
   onFeeTierChange,
   priceRangeSelection,
@@ -129,8 +135,11 @@ export const V3PoolCreate: React.FC<V3PoolCreateProps> = ({
       return (
         <ActionButton
           variant="approve"
-          onClick={onApproveA}
-          loading={isConfirming}
+          onClick={() => {
+            void onApproveA();
+          }}
+          disabled={isSequenceRunning}
+          loading={isSequenceRunning || isConfirming}
           loadingText="Approving..."
           className={styles.createPoolButton}
         >
@@ -143,8 +152,11 @@ export const V3PoolCreate: React.FC<V3PoolCreateProps> = ({
       return (
         <ActionButton
           variant="approve"
-          onClick={onApproveB}
-          loading={isConfirming}
+          onClick={() => {
+            void onApproveB();
+          }}
+          disabled={isSequenceRunning}
+          loading={isSequenceRunning || isConfirming}
           loadingText="Approving..."
           className={styles.createPoolButton}
         >
@@ -156,9 +168,9 @@ export const V3PoolCreate: React.FC<V3PoolCreateProps> = ({
     return (
       <ActionButton
         variant="primary"
-        onClick={onCreatePool}
-        disabled={!canCreatePool}
-        loading={isConfirming}
+          onClick={onCreatePool}
+          disabled={!canCreatePool || isSequenceRunning}
+          loading={isSequenceRunning || isConfirming}
         loadingText="Creating Pool..."
         className={styles.createPoolButton}
       >
@@ -369,6 +381,8 @@ export const V3PoolCreate: React.FC<V3PoolCreateProps> = ({
           )}
 
           {renderActionButton()}
+
+          <TransactionSteps steps={transactionSteps} />
         </>
       )}
     </>

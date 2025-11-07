@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useChainId } from "wagmi";
 import { useTransactionSettings } from "../../../hooks/useTransactionSettings";
 import { useSharedPoolLogic } from "../hooks/useSharedPoolLogic";
@@ -16,6 +16,7 @@ export const PoolCreate: React.FC = () => {
   const [selectedVersion, setSelectedVersion] = useState<"v2" | "v3">("v2");
   const [, setHash] = useState<`0x${string}` | undefined>(undefined);
   const [isConfirming, setIsConfirming] = useState(false);
+  const lastCompletedTxHashRef = useRef<`0x${string}` | undefined>(undefined);
 
   const defaultPoolSettings = useMemo(
     () => ({
@@ -44,26 +45,6 @@ export const PoolCreate: React.FC = () => {
     routerAddress: approvalTarget  // V2: router, V3: Permit2
   });
 
-  // Version-specific logic (always call both hooks, let them handle internal logic)
-  const v2Logic = useV2PoolLogic({ 
-    sharedState: shared.state, 
-    sharedActions: shared.actions,
-    poolSettings: poolSettings.settings, 
-    setHash, 
-    setIsConfirming,
-    isActive: selectedVersion === 'v2'
-  });
-    
-  const v3Logic = useV3PoolLogic({ 
-    sharedState: shared.state, 
-    poolSettings: poolSettings.settings, 
-    setHash, 
-    setIsConfirming,
-    isActive: selectedVersion === 'v3'
-  });
-
-  // Version-specific logic is used directly in component props below
-
   // Extract shared state and actions
   const {
     tokenA,
@@ -79,8 +60,6 @@ export const PoolCreate: React.FC = () => {
     setTokenB,
     setAmountA,
     setAmountB,
-    handleApproveTokenA,
-    handleApproveTokenB,
     setMaxAmountA,
     setMaxAmountB,
     needsApprovalA,
@@ -88,7 +67,33 @@ export const PoolCreate: React.FC = () => {
     canCreatePool,
   } = shared.actions;
 
-  const isStep1Complete = tokenA && tokenB;
+  const isStep1Complete = Boolean(tokenA && tokenB);
+  const isStep2Available = isStep1Complete || currentStep === 2;
+
+  const handleStepClick = (step: 1 | 2) => {
+    if (step === currentStep) {
+      return;
+    }
+
+    if (step === 1) {
+      setCurrentStep(1);
+      return;
+    }
+
+    if (step === 2 && isStep2Available) {
+      setCurrentStep(2);
+    }
+  };
+
+  const handleStepKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    step: 1 | 2
+  ) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleStepClick(step);
+    }
+  };
 
   const handleReset = () => {
     setCurrentStep(1);
@@ -96,7 +101,17 @@ export const PoolCreate: React.FC = () => {
     setTokenB(null);
     setAmountA("");
     setAmountB("");
+    setIsConfirming(false);
     // V3 state will be reset automatically when switching versions or in the V3 hook
+  };
+
+  const handlePoolCreated = (hash: `0x${string}`) => {
+    if (lastCompletedTxHashRef.current === hash) {
+      return;
+    }
+
+    lastCompletedTxHashRef.current = hash;
+    handleReset();
   };
 
   const handleContinue = () => {
@@ -104,6 +119,29 @@ export const PoolCreate: React.FC = () => {
       setCurrentStep(2);
     }
   };
+
+  // Version-specific logic (always call both hooks, let them handle internal logic)
+  const v2Logic = useV2PoolLogic({ 
+    sharedState: shared.state, 
+    sharedActions: shared.actions,
+    poolSettings: poolSettings.settings, 
+    setHash, 
+    setIsConfirming,
+    isActive: selectedVersion === 'v2',
+    onPoolCreated: handlePoolCreated
+  });
+    
+  const v3Logic = useV3PoolLogic({ 
+    sharedState: shared.state, 
+    sharedActions: shared.actions,
+    poolSettings: poolSettings.settings, 
+    setHash, 
+    setIsConfirming,
+    isActive: selectedVersion === 'v3',
+    onPoolCreated: handlePoolCreated
+  });
+
+  // Version-specific logic is used directly in component props below
 
 
   // 2. Replace all className strings with {styles.className}
@@ -143,7 +181,11 @@ export const PoolCreate: React.FC = () => {
                   : currentStep > 1
                   ? styles.completed
                   : ""
-              }`}
+              } ${currentStep !== 1 ? styles.clickable : ""}`}
+              onClick={() => handleStepClick(1)}
+              role="button"
+              tabIndex={currentStep !== 1 ? 0 : -1}
+              onKeyDown={(event) => handleStepKeyDown(event, 1)}
             >
               <div className={styles.stepNumber}>1</div>
               <div className={styles.stepContent}>
@@ -165,7 +207,14 @@ export const PoolCreate: React.FC = () => {
             <div
               className={`${styles.poolStep} ${
                 currentStep === 2 ? styles.active : ""
-              } ${currentStep < 2 ? styles.disabled : ""}`}
+              } ${!isStep2Available ? styles.disabled : ""} ${
+                isStep2Available ? styles.clickable : ""
+              }`}
+              onClick={() => handleStepClick(2)}
+              role="button"
+              tabIndex={isStep2Available ? 0 : -1}
+              aria-disabled={!isStep2Available}
+              onKeyDown={(event) => handleStepKeyDown(event, 2)}
             >
               <div className={styles.stepNumber}>2</div>
               <div className={styles.stepContent}>
@@ -227,11 +276,13 @@ export const PoolCreate: React.FC = () => {
                 balanceB={balanceB}
                 needsApprovalA={needsApprovalA}
                 needsApprovalB={needsApprovalB}
-                onApproveA={handleApproveTokenA}
-                onApproveB={handleApproveTokenB}
+                onApproveA={v3Logic.actions.handleApproveTokenA}
+                onApproveB={v3Logic.actions.handleApproveTokenB}
                 canCreatePool={canCreatePool}
                 onCreatePool={v3Logic.actions.handleCreatePool}
                 isConfirming={isConfirming}
+                isSequenceRunning={v3Logic.state.isSequenceRunning}
+                transactionSteps={v3Logic.state.transactionSteps}
                 selectedFeeTier={v3Logic.state.selectedFeeTier}
                 onFeeTierChange={v3Logic.actions.setSelectedFeeTier}
                 priceRangeSelection={v3Logic.state.priceRangeSelection}
