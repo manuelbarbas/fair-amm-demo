@@ -5,8 +5,7 @@ import type { Chain } from 'viem'
 import { QueryClient } from '@tanstack/react-query'
 
 // Import chain configurations
-import biteTestnetConfig from './chains/bite_testnet.json'
-import fairTestnetConfig from './chains/fair_testnet.json'
+import skaleBaseTestnetConfig from './chains/skale_base_testnet.json'
 
 // Types
 export interface TokenConfig {
@@ -15,6 +14,7 @@ export interface TokenConfig {
   symbol: string
   name: string
 }
+
 
 export interface ChainConfig {
   id: number
@@ -36,14 +36,18 @@ export interface ChainConfig {
       url: string
     }
   }
-  router: string
+  v2_router: string
+  v3_swap_router: string
+  v3_nft_positionManager: string
+  v3_quoter: string
+  v3_multicall: string
+  permit2: string
   tokens: Record<string, TokenConfig>
 }
 
 // Load all chain configurations
 const chainConfigurations: ChainConfig[] = [
-  biteTestnetConfig,
-  fairTestnetConfig
+  skaleBaseTestnetConfig
 ]
 
 // Create chain definitions dynamically
@@ -85,8 +89,14 @@ createWeb3Modal({
 // Dynamic chain configs - generated from JSON files
 export const chainConfigs = chainConfigurations.reduce((acc, config) => {
   acc[config.id] = {
-    name: config.displayName,
-    router: config.router as `0x${string}`,
+    ...config, // Preserve all original config
+    name: config.displayName, // Override with displayName for consistency
+    v2_router: config.v2_router as `0x${string}`,
+    v3_swap_router: config.v3_swap_router as `0x${string}`,
+    v3_nft_positionManager: config.v3_nft_positionManager as `0x${string}`,
+    v3_quoter: config.v3_quoter as `0x${string}`,
+    v3_multicall: config.v3_multicall as `0x${string}`,
+    permit2: config.permit2 as `0x${string}`,
     tokens: Object.fromEntries(
       Object.entries(config.tokens).map(([key, token]) => [
         key,
@@ -117,9 +127,35 @@ export const getTokens = (chainId: number) => {
   return getChainConfig(chainId)?.tokens || {}
 }
 
-export const getRouter = (chainId: number) => {
-  return getChainConfig(chainId)?.router
+export const getV2RouterAddress = (chainId: number) => {
+  return getChainConfig(chainId)?.v2_router as `0x${string}` | undefined
 }
+
+export const getV3SwapRouterAddress = (chainId: number) => {
+  return getChainConfig(chainId)?.v3_swap_router as `0x${string}` | undefined
+}
+
+export const getV3NFTPositionManagerAddress = (chainId: number) => {
+  return getChainConfig(chainId)?.v3_nft_positionManager as `0x${string}` | undefined
+}
+
+export const getV3QuoterAddress = (chainId: number) => {
+  return getChainConfig(chainId)?.v3_quoter as `0x${string}` | undefined
+}
+
+export const getV3MulticallAddress = (chainId: number) => {
+  return getChainConfig(chainId)?.v3_multicall as `0x${string}` | undefined
+}
+
+export const getPermit2Address = (chainId: number) => {
+  return getChainConfig(chainId)?.permit2 as `0x${string}` | undefined
+}
+
+// Legacy function for backward compatibility
+export const getRouter = (chainId: number) => {
+  return getV2RouterAddress(chainId)
+}
+
 
 // Get chain by ID
 export const getChainById = (chainId: number) => {
@@ -132,7 +168,7 @@ export const getAllTokensWithChain = () => {
   
   chainMetadata.forEach(chain => {
     // Add native token
-    const chainConfig = chainConfigurations.find(c => c.id === chain.id)
+   /* const chainConfig = chainConfigurations.find(c => c.id === chain.id)
     if (chainConfig) {
       allTokens.push({
         address: '0x0000000000000000000000000000000000000000' as `0x${string}`,
@@ -143,7 +179,7 @@ export const getAllTokensWithChain = () => {
         chainName: chain.name,
         isNative: true,
       })
-    }
+    }*/
     
     // Add ERC20 tokens
     const chainTokens = getTokens(chain.id)
@@ -161,24 +197,23 @@ export const getAllTokensWithChain = () => {
 }
 
 // This piece needs to be directly set on the chain details json
-import fairTokenIcon from '../assets/fair_token.png'
 import sklTokenIcon from '../assets/skl_token.png'
 import usdcTokenIcon from '../assets/usdc_token.png'
 import usdtTokenIcon from '../assets/usdt_token.png'
+import ethTokenIcon from '../assets/eth_token.png'
+import wbtcTokenIcon from '../assets/wbtc_token.png'
 
 // Dynamic token icon mapping
 export const getTokenIcon = (symbol: string): string => {
   const iconMap: Record<string, string> = {
-    'FAIR': fairTokenIcon,    // Native FAIR token
-    'BITE': fairTokenIcon,    // Native BITE token
-    'WFAIR': fairTokenIcon,
-    'WBITE': fairTokenIcon,
     'SKL': sklTokenIcon,
     'USDC': usdcTokenIcon,
     'USDT': usdtTokenIcon,
+    'ETH': ethTokenIcon,
+    'WBTC': wbtcTokenIcon
   }
   
-  return iconMap[symbol] || fairTokenIcon // fallback
+  return iconMap[symbol] // fallback
 }
 
 // Check if token is native wrapped token
@@ -227,7 +262,10 @@ export const getWETHAddress = (chainId: number): `0x${string}` | null => {
 // Create a native token representation for a chain
 export const createNativeToken = (chainId: number): TokenConfig | null => {
   const nativeCurrency = getNativeCurrency(chainId)
-  if (!nativeCurrency) return null
+
+  console.log("nativeCurrency ", nativeCurrency)
+
+  if (!nativeCurrency || nativeCurrency.symbol == 'sFUEL') return null
   
   return {
     address: '0x0000000000000000000000000000000000000000' as `0x${string}`,
@@ -240,4 +278,4 @@ export const createNativeToken = (chainId: number): TokenConfig | null => {
 // Backward compatibility - defaults to first available chain
 export const defaultChain = chains[0]
 export const tokens = chainConfigs[defaultChain.id]?.tokens || {}
-export const UNISWAP_V2_ROUTER = chainConfigs[defaultChain.id]?.router
+export const UNISWAP_V2_ROUTER = chainConfigs[defaultChain.id]?.v2_router

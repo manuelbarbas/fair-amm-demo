@@ -37,6 +37,9 @@
   --background-modal: rgba(17, 24, 39, 0.95);
   --background-overlay: rgba(0, 0, 0, 0.8);
   
+  --background-contrast: rgb(179, 245, 223);
+  --background-contrast-2: rgb(205 248 233);
+
   /* Text Colors */
   --text-primary: rgb(243, 244, 246);
   --text-secondary: rgb(156, 163, 175);
@@ -44,13 +47,13 @@
   --text-inverse: rgb(17, 24, 39);
   
   /* Border Colors */
-  --border-primary: rgb(44, 47, 54);
+  --border-primary: rgb(211, 221, 243);
   --border-secondary: rgb(64, 68, 79);
   --border-tertiary: rgb(75, 85, 99);
   
   /* Input Styles */
-  --input-background: rgb(31, 41, 55);
-  --input-border: rgb(55, 65, 81);
+  --input-background: rgb(2 41 28);
+  --input-border: rgb(213, 220, 232);
   --input-border-focus: var(--primary-emerald);
   --input-text: var(--text-primary);
   --input-placeholder: var(--text-secondary);
@@ -68,8 +71,8 @@
   
   /* Shadows for dark theme */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --shadow-button: 0 2px 8px rgba(16, 185, 129, 0.3);
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-button: 0 2px 8px rgba(16, 185, 129, 0.63);
+  --shadow-card: 0 4px 16px rgba(255, 255, 255, 0.135);
   
   /* Simple Background System - Dark Mode */
   --page-background: var(--primary-emerald-dark);
@@ -81,11 +84,15 @@
 .light {
   /* Backgrounds with light tones */
   --background-primary: rgb(255, 255, 255);
-  --background-secondary: rgb(249, 250, 251);
+  --background-secondary: rgb(208, 244, 232);
+  --background_secondary-highligh: var(--primary-emerald-light-2);
   --background-tertiary: rgb(243, 244, 246);
-  --background-modal: rgba(255, 255, 255, 0.95);
+  --background-modal: rgb(235, 250, 245);
   --background-overlay: rgba(0, 0, 0, 0.5);
   
+  --background-contrast: rgb(179, 245, 223);
+  --background-contrast-2: rgb(205 248 233);
+
   /* Text Colors - Charcoal for light mode */
   --text-primary: rgb(31, 41, 55);
   --text-secondary: rgb(75, 85, 99);
@@ -95,20 +102,20 @@
   --text-main: var(--primary-emerald-dark);
   
   /* Border Colors */
-  --border-primary: rgb(229, 231, 235);
+  --border-primary: rgb(0, 0, 0);
   --border-secondary: rgb(209, 213, 219);
   --border-tertiary: rgb(156, 163, 175);
   
   /* Input Styles */
-  --input-background: rgb(255, 255, 255);
-  --input-border: rgb(209, 213, 219);
-  --input-border-focus: var(--primary-emerald);
+  --input-background: rgb(235, 250, 245);
+  --input-border: rgb(0, 0, 0);
+  --input-border-focus: rgb(255, 255, 255);
   --input-text: var(--text-primary);
   --input-placeholder: var(--text-secondary);
   
   /* Button Styles */
   --button-primary-bg: var(--primary-emerald-light-2);
-  --button-primary-hover: var(--primary-emerald-hover);
+  --button-primary-hover: rgb(235, 250, 245);
   --button-primary-text: white;
   --button-secondary-bg: var(--background-primary);
   --button-secondary-hover: var(--background-secondary);
@@ -119,8 +126,8 @@
 
   /* Shadows for light theme */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.15);
-  --shadow-button: 0 2px 8px rgba(16, 185, 129, 0.2);
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 2px 8px rgba(2, 32, 22, 0.83);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.381);
   
   /* Simple Background System - Light Mode */
   --page-background: var(--primary-emerald-light);

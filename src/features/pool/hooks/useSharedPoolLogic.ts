@@ -1,20 +1,90 @@
 import { useState, useEffect, useMemo } from "react";
 import { parseUnits, formatUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from "wagmi";
-import { createPoolService, type Token, type PoolQuote } from "../services/pool";
-import { getTokens, getRouter } from "../../../config/config";
+import { createPoolService, type Token } from "../services/pool";
+import { getTokens } from "../../../config/config";
 import { usePoolBalance } from "./usePoolBalance";
 import { needsPoolApproval, isInvalidPoolPair } from "../../../utils/tokenUtils";
 import type { TransactionSettingsData } from "../../../hooks/useTransactionSettings";
 
-export const usePool = (poolSettings: TransactionSettingsData) => {
+export interface SharedPoolState {
+  // Token state
+  tokenA: Token | null;
+  tokenB: Token | null;
+  
+  // Amount state (from usePoolBalance)
+  amountA: string;
+  amountB: string;
+  
+  // Balance state
+  balanceA: bigint;
+  balanceB: bigint;
+  
+  // Approval state
+  isApprovedA: boolean;
+  isApprovedB: boolean;
+  allowanceA: bigint;
+  allowanceB: bigint;
+  
+  // Transaction state
+  hash: `0x${string}` | undefined;
+  isConfirming: boolean;
+  isConfirmed: boolean;
+  isTxConfirming: boolean;
+  
+  // Loading states
+  isLoadingPrices: boolean;
+  balanceError: string | null;
+  
+  // Pool service
+  poolService: any;
+}
+
+export interface SharedPoolActions {
+  // Token actions
+  setTokenA: (token: Token | null) => void;
+  setTokenB: (token: Token | null) => void;
+  handleTokenSwap: () => void;
+  
+  // Amount actions
+  setAmountA: (amount: string) => void;
+  setAmountB: (amount: string) => void;
+  setMaxAmountA: () => void;
+  setMaxAmountB: () => void;
+  
+  // Approval actions
+  handleApproveTokenA: () => Promise<`0x${string}` | undefined>;
+  handleApproveTokenB: () => Promise<`0x${string}` | undefined>;
+  
+  // Computed values
+  needsApprovalA: boolean;
+  needsApprovalB: boolean;
+  canCreatePool: boolean;
+}
+
+export interface UseSharedPoolLogicParams {
+  poolSettings: TransactionSettingsData;
+  routerAddress?: `0x${string}`;
+}
+
+/**
+ * Shared pool logic hook containing common functionality for both V2 and V3 pools
+ * Handles: token management, balances, approvals, transaction state
+ * 
+ * APPROVAL FLOW:
+ * - V2: Direct approval to V2 Router (traditional ERC20 approve)
+ * - V3: Approval to the NonfungiblePositionManager (direct ERC20 approve)
+ */
+export const useSharedPoolLogic = ({ 
+  poolSettings, 
+  routerAddress 
+}: UseSharedPoolLogicParams) => {
   const { address } = useAccount();
   const chainId = useChainId();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
   const chainTokens = getTokens(chainId);
-  const router = getRouter(chainId);
 
   // State for tokens
   const [tokenA, setTokenA] = useState<Token | null>(null);
@@ -30,10 +100,6 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     error: balanceError
   } = usePoolBalance({ tokenA, tokenB });
 
-  // State for pool configuration
-  const [selectedFeeTier, setSelectedFeeTier] = useState<number>(0.3);
-  const [priceRangeOption, setPriceRangeOption] = useState<'full' | 'custom'>('full');
-
   // State for balances and allowances
   const [balanceA, setBalanceA] = useState<bigint>(0n);
   const [balanceB, setBalanceB] = useState<bigint>(0n);
@@ -44,11 +110,9 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
   const [isApprovedA, setIsApprovedA] = useState(false);
   const [isApprovedB, setIsApprovedB] = useState(false);
 
-  // State for pool operations
-  const [quote, setQuote] = useState<PoolQuote | null>(null);
+  // State for transactions
   const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
 
   // Create service instance
   const poolService = useMemo(() => {
@@ -111,7 +175,14 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
   // Fetch allowances
   useEffect(() => {
     const fetchAllowances = async () => {
-      if (!poolService || !router || !address) return;
+      if (!poolService || !routerAddress || !address) return;
+      
+      console.log('Fetching allowances for approval target:', {
+        routerAddress,
+        targetType: routerAddress?.toLowerCase().includes('permit2') ? 'Permit2' : 'Router',
+        tokenA: tokenA?.symbol,
+        tokenB: tokenB?.symbol
+      });
       
       if (tokenA) {
         // Only fetch allowance for tokens that need approval
@@ -119,11 +190,13 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
           const allowanceA = await poolService.getTokenAllowance(
             tokenA.address,
             address,
-            router
+            routerAddress
           );
+          console.log(`Token A (${tokenA.symbol}) allowance:`, allowanceA.toString());
           setAllowanceA(allowanceA);
         } else {
           // Native tokens don't need allowance, set to max to indicate no approval needed
+          console.log(`Token A (${tokenA.symbol}) is native - no approval needed`);
           setAllowanceA(BigInt(Number.MAX_SAFE_INTEGER));
         }
       }
@@ -134,48 +207,20 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
           const allowanceB = await poolService.getTokenAllowance(
             tokenB.address,
             address,
-            router
+            routerAddress
           );
+          console.log(`Token B (${tokenB.symbol}) allowance:`, allowanceB.toString());
           setAllowanceB(allowanceB);
         } else {
           // Native tokens don't need allowance, set to max to indicate no approval needed
+          console.log(`Token B (${tokenB.symbol}) is native - no approval needed`);
           setAllowanceB(BigInt(Number.MAX_SAFE_INTEGER));
         }
       }
     };
 
     fetchAllowances();
-  }, [poolService, tokenA, tokenB, router, address]);
-
-  // Get pool quote when amounts change
-  useEffect(() => {
-    const fetchQuote = async () => {
-      if (!poolService || !router || !amountA || !amountB || !tokenA || !tokenB) {
-        setQuote(null);
-        return;
-      }
-
-      setIsLoadingQuote(true);
-      try {
-        const poolQuote = await poolService.getLiquidityQuote(
-          amountA,
-          amountB,
-          tokenA,
-          tokenB,
-          router
-        );
-        
-        setQuote(poolQuote);
-      } catch (error) {
-        console.error("Error fetching pool quote:", error);
-        setQuote(null);
-      } finally {
-        setIsLoadingQuote(false);
-      }
-    };
-
-    fetchQuote();
-  }, [poolService, router, amountA, amountB, tokenA, tokenB]);
+  }, [poolService, tokenA, tokenB, routerAddress, address, isConfirmed]);
 
   // Update approval status for token A
   useEffect(() => {
@@ -196,7 +241,15 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     }
 
     const requiredAmount = parseUnits(amountA, tokenA.decimals);
-    setIsApprovedA(!poolService.isApprovalNeeded(allowanceA, requiredAmount));
+    const isApprovalNeeded = poolService.isApprovalNeeded(allowanceA, requiredAmount);
+    const approved = !isApprovalNeeded;
+    console.log(`Token A (${tokenA.symbol}) approval status:`, {
+      allowance: allowanceA.toString(),
+      required: requiredAmount.toString(),
+      isApprovalNeeded,
+      approved
+    });
+    setIsApprovedA(approved);
   }, [poolService, allowanceA, amountA, tokenA, chainId]);
 
   // Update approval status for token B
@@ -218,7 +271,15 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     }
 
     const requiredAmount = parseUnits(amountB, tokenB.decimals);
-    setIsApprovedB(!poolService.isApprovalNeeded(allowanceB, requiredAmount));
+    const isApprovalNeeded = poolService.isApprovalNeeded(allowanceB, requiredAmount);
+    const approved = !isApprovalNeeded;
+    console.log(`Token B (${tokenB.symbol}) approval status:`, {
+      allowance: allowanceB.toString(),
+      required: requiredAmount.toString(),
+      isApprovalNeeded,
+      approved
+    });
+    setIsApprovedB(approved);
   }, [poolService, allowanceB, amountB, tokenB, chainId]);
 
   // Reset confirming state when transaction is confirmed or fails
@@ -229,90 +290,59 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
   }, [isConfirmed, isTxConfirming]);
 
   // Actions
-  const handleApproveTokenA = async () => {
-    if (!poolService || !tokenA || !amountA || !router) return;
+  const handleApproveTokenA = async (): Promise<`0x${string}` | undefined> => {
+    if (!poolService || !tokenA || !amountA || !routerAddress) return undefined;
+
+    console.log('Approving Token A to:', {
+      token: tokenA.symbol,
+      target: routerAddress,
+      amount: amountA,
+      targetType: routerAddress?.toLowerCase().includes('permit2') ? 'Permit2' : 'Router'
+    });
 
     try {
       setIsConfirming(true);
       const amount = parseUnits(amountA, tokenA.decimals);
       const txHash = await poolService.approveToken(
         tokenA.address, 
-        router, 
+        routerAddress, 
         amount, 
         poolSettings?.biteEncryption
       );
       setHash(txHash);
+      return txHash;
     } catch (error) {
       console.error("Error approving token A:", error);
       setIsConfirming(false);
+      return undefined;
     }
   };
 
-  const handleApproveTokenB = async () => {
-    if (!poolService || !tokenB || !amountB || !router) return;
+  const handleApproveTokenB = async (): Promise<`0x${string}` | undefined> => {
+    if (!poolService || !tokenB || !amountB || !routerAddress) return undefined;
+
+    console.log('Approving Token B to:', {
+      token: tokenB.symbol,
+      target: routerAddress,
+      amount: amountB,
+      targetType: routerAddress?.toLowerCase().includes('permit2') ? 'Permit2' : 'Router'
+    });
 
     try {
       setIsConfirming(true);
       const amount = parseUnits(amountB, tokenB.decimals);
       const txHash = await poolService.approveToken(
         tokenB.address, 
-        router, 
+        routerAddress, 
         amount, 
         poolSettings?.biteEncryption
       );
       setHash(txHash);
+      return txHash;
     } catch (error) {
       console.error("Error approving token B:", error);
       setIsConfirming(false);
-    }
-  };
-
-  const handleCreatePool = async () => {
-    if (!poolService || !tokenA || !tokenB || !amountA || !amountB || !quote || !address || !router) {
-      return;
-    }
-
-    try {
-      setIsConfirming(true);
-      const amountADesired = parseUnits(amountA, tokenA.decimals);
-      const amountBDesired = parseUnits(amountB, tokenB.decimals);
-      
-      // For new pools, use very liberal minimum amounts since there's no existing ratio to maintain
-      // We'll use a small percentage (like 5%) or 1 wei minimum to prevent MEV attacks but allow pool creation
-      const minSlippage = Math.max(poolSettings.slippage.value, 5); // Minimum 5% slippage for new pools
-      const { amountAMin, amountBMin } = poolService.calculateMinAmounts(
-        amountADesired,
-        amountBDesired,
-        minSlippage
-      );
-      
-      console.log('Pool creation amounts:', {
-        tokenA: tokenA.symbol,
-        tokenB: tokenB.symbol,
-        amountADesired: amountADesired.toString(),
-        amountBDesired: amountBDesired.toString(),
-        amountAMin: amountAMin.toString(),
-        amountBMin: amountBMin.toString(),
-        slippage: minSlippage
-      });
-      
-      const txHash = await poolService.addLiquidity(
-        tokenA,
-        tokenB,
-        amountADesired,
-        amountBDesired,
-        amountAMin,
-        amountBMin,
-        router,
-        address,
-        chainId,
-        poolSettings?.deadline,
-        poolSettings?.biteEncryption
-      );
-      setHash(txHash);
-    } catch (error) {
-      console.error("Error creating pool:", error);
-      setIsConfirming(false);
+      return undefined;
     }
   };
 
@@ -334,7 +364,6 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
     // Clear amounts as usePoolBalance will handle recalculation
     setAmountA("");
     setAmountB("");
-    setQuote(null);
   };
 
   const setMaxAmountA = () => {
@@ -352,52 +381,61 @@ export const usePool = (poolSettings: TransactionSettingsData) => {
   };
 
   // Computed values
+  const needsApprovalA = tokenA && amountA && parseFloat(amountA) > 0 && needsPoolApproval(tokenA) && !isApprovedA;
+  const needsApprovalB = tokenB && amountB && parseFloat(amountB) > 0 && needsPoolApproval(tokenB) && !isApprovedB;
+  
   const canCreatePool = tokenA && tokenB && amountA && amountB && 
     parseFloat(amountA) > 0 && parseFloat(amountB) > 0 && 
     isApprovedA && isApprovedB;
 
-  const needsApprovalA = tokenA && amountA && parseFloat(amountA) > 0 && needsPoolApproval(tokenA) && !isApprovedA;
-  const needsApprovalB = tokenB && amountB && parseFloat(amountB) > 0 && needsPoolApproval(tokenB) && !isApprovedB;
+  // Debug final computed values
+  console.log('Pool creation status:', {
+    tokenA: tokenA?.symbol,
+    tokenB: tokenB?.symbol,
+    amountA,
+    amountB,
+    isApprovedA,
+    isApprovedB,
+    needsApprovalA,
+    needsApprovalB,
+    canCreatePool
+  });
 
-  return {
-    // State
+  // Return state and actions
+  const state: SharedPoolState = {
     tokenA,
     tokenB,
     amountA,
     amountB,
-    selectedFeeTier,
-    priceRangeOption,
     balanceA,
     balanceB,
     isApprovedA,
     isApprovedB,
-    quote,
+    allowanceA,
+    allowanceB,
+    hash,
     isConfirming,
     isConfirmed,
-    isLoadingQuote,
+    isTxConfirming,
     isLoadingPrices,
     balanceError,
-    
-    // Computed
-    canCreatePool,
-    needsApprovalA,
-    needsApprovalB,
-    
-    // Actions
-    setTokenA: setTokenAWithValidation,
-    setTokenB: setTokenBWithValidation,
-    setAmountA,
-    setAmountB,
-    setSelectedFeeTier,
-    setPriceRangeOption,
-    handleApproveTokenA,
-    handleApproveTokenB,
-    handleCreatePool,
-    handleTokenSwap,
-    setMaxAmountA,
-    setMaxAmountB,
-    
-    // Utils
     poolService,
   };
+
+  const actions: SharedPoolActions = {
+    setTokenA: setTokenAWithValidation,
+    setTokenB: setTokenBWithValidation,
+    handleTokenSwap,
+    setAmountA,
+    setAmountB,
+    setMaxAmountA,
+    setMaxAmountB,
+    handleApproveTokenA,
+    handleApproveTokenB,
+    needsApprovalA: Boolean(needsApprovalA),
+    needsApprovalB: Boolean(needsApprovalB),
+    canCreatePool: Boolean(canCreatePool),
+  };
+
+  return { state, actions };
 };

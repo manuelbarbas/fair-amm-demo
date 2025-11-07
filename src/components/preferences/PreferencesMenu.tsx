@@ -53,17 +53,26 @@ const PreferencesMenu: React.FC = () => {
   ];
 
   return (
-    <div className="preferences-menu" ref={menuRef}>
-      <button
-        className="preferences-trigger"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Open preferences"
-      >
-        <ThreeDotsIcon/>
-      </button>
-
+    <>
+      {/* Overlay that appears when preferences menu is open */}
       {isOpen && (
-        <div className="preferences-dropdown">
+        <div 
+          className="preferences-overlay"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      
+      <div className="preferences-menu" ref={menuRef}>
+        <button
+          className="preferences-trigger"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Open preferences"
+        >
+          <ThreeDotsIcon/>
+        </button>
+
+        {isOpen && (
+          <div className="preferences-dropdown">
           <div className="preferences-header">
             <h3>Global preferences</h3>
           </div>
@@ -90,7 +99,8 @@ const PreferencesMenu: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

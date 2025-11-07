@@ -1,32 +1,70 @@
-import React, { useState , useMemo} from "react";
-import TokenSelector from "../../../components/TokenSelector/TokenSelector";
-import TokenInputContainer from "../../../components/TokenInputContainer/TokenInputContainer";
-import ActionButton from "../../../components/ActionButton/ActionButton";
-import { usePool } from "../hooks/usePool";
+import React, { useState, useMemo } from "react";
+import { useChainId } from "wagmi";
 import { useTransactionSettings } from "../../../hooks/useTransactionSettings";
-// 1. Import the CSS module
-import styles from "./PoolCreate.module.css";
+import { useSharedPoolLogic } from "../hooks/useSharedPoolLogic";
+import { useV2PoolLogic } from "../hooks/useV2PoolLogic";
+import { useV3PoolLogic } from "../hooks/useV3PoolLogic";
+import { V2PoolCreate } from "./V2PoolCreate";
+import { V3PoolCreate } from "./V3PoolCreate";
+import { getRouter, getV3NFTPositionManagerAddress } from "../../../config/config";
 import { InfoIcon } from "../../../components/UI";
+import styles from "./PoolCreate.module.css";
 
 export const PoolCreate: React.FC = () => {
+  const chainId = useChainId();
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [selectedVersion, setSelectedVersion] = useState("v2");
+  const [selectedVersion, setSelectedVersion] = useState<"v2" | "v3">("v2");
+  const [, setHash] = useState<`0x${string}` | undefined>(undefined);
+  const [isConfirming, setIsConfirming] = useState(false);
 
-   const defaultPoolSettings = useMemo(
-      () => ({
-        slippage: { isAuto: true, value: 0.5 },
-        deadline: 20,
-        biteEncryption: true,
-      }),
-      []
-    );
-  
-    const poolSettings = useTransactionSettings({
-      storageKey: "poolTransactionSettings",
-      defaultSettings: defaultPoolSettings,
-    });
-  
+  const defaultPoolSettings = useMemo(
+    () => ({
+      slippage: { isAuto: true, value: 0.5 },
+      deadline: 20,
+      biteEncryption: true,
+    }),
+    []
+  );
 
+  const poolSettings = useTransactionSettings({
+    storageKey: "poolTransactionSettings",
+    defaultSettings: defaultPoolSettings,
+  });
+
+  // Get appropriate approval target based on version
+  // V2: Approve tokens to V2 Router
+  // V3: Approve tokens to Permit2 contract (universal approval system)
+  const approvalTarget = selectedVersion === 'v2' 
+    ? getRouter(chainId)  // V2 Router for direct approvals
+    : getV3NFTPositionManagerAddress(chainId);  // V3 Position Manager requires token allowances
+
+  // Shared logic (always needed)
+  const shared = useSharedPoolLogic({ 
+    poolSettings: poolSettings.settings, 
+    routerAddress: approvalTarget  // V2: router, V3: Permit2
+  });
+
+  // Version-specific logic (always call both hooks, let them handle internal logic)
+  const v2Logic = useV2PoolLogic({ 
+    sharedState: shared.state, 
+    sharedActions: shared.actions,
+    poolSettings: poolSettings.settings, 
+    setHash, 
+    setIsConfirming,
+    isActive: selectedVersion === 'v2'
+  });
+    
+  const v3Logic = useV3PoolLogic({ 
+    sharedState: shared.state, 
+    poolSettings: poolSettings.settings, 
+    setHash, 
+    setIsConfirming,
+    isActive: selectedVersion === 'v3'
+  });
+
+  // Version-specific logic is used directly in component props below
+
+  // Extract shared state and actions
   const {
     tokenA,
     tokenB,
@@ -34,22 +72,22 @@ export const PoolCreate: React.FC = () => {
     amountB,
     balanceA,
     balanceB,
-    needsApprovalA,
-    needsApprovalB,
-    isConfirming,
-    canCreatePool,
+  } = shared.state;
+
+  const {
     setTokenA,
     setTokenB,
     setAmountA,
     setAmountB,
     handleApproveTokenA,
     handleApproveTokenB,
-    handleCreatePool,
     setMaxAmountA,
     setMaxAmountB,
-  } = usePool(poolSettings.settings);
+    needsApprovalA,
+    needsApprovalB,
+    canCreatePool,
+  } = shared.actions;
 
-  const v2FeeTier = 0.3;
   const isStep1Complete = tokenA && tokenB;
 
   const handleReset = () => {
@@ -58,6 +96,7 @@ export const PoolCreate: React.FC = () => {
     setTokenB(null);
     setAmountA("");
     setAmountB("");
+    // V3 state will be reset automatically when switching versions or in the V3 hook
   };
 
   const handleContinue = () => {
@@ -66,61 +105,6 @@ export const PoolCreate: React.FC = () => {
     }
   };
 
-  const renderActionButton = () => {
-    if (currentStep === 1) {
-      return (
-        <ActionButton
-          variant="secondary"
-          onClick={handleContinue}
-          disabled={!isStep1Complete}
-          className={styles.continueButton}
-        >
-          Continue
-        </ActionButton>
-      );
-    }
-
-    if (needsApprovalA) {
-      return (
-        <ActionButton
-          variant="approve"
-          onClick={handleApproveTokenA}
-          loading={isConfirming}
-          loadingText="Approving..."
-          className={styles.createPoolButton}
-        >
-          Approve {tokenA?.symbol}
-        </ActionButton>
-      );
-    }
-
-    if (needsApprovalB) {
-      return (
-        <ActionButton
-          variant="approve"
-          onClick={handleApproveTokenB}
-          loading={isConfirming}
-          loadingText="Approving..."
-          className={styles.createPoolButton}
-        >
-          Approve {tokenB?.symbol}
-        </ActionButton>
-      );
-    }
-
-    return (
-      <ActionButton
-        variant="primary"
-        onClick={handleCreatePool}
-        disabled={!canCreatePool}
-        loading={isConfirming}
-        loadingText="Creating Pool..."
-        className={styles.createPoolButton}
-      >
-        Create Pool
-      </ActionButton>
-    );
-  };
 
   // 2. Replace all className strings with {styles.className}
   return (
@@ -136,13 +120,11 @@ export const PoolCreate: React.FC = () => {
           <div className={styles.versionDropdown}>
             <select
               value={selectedVersion}
-              onChange={(e) => setSelectedVersion(e.target.value)}
+              onChange={(e) => setSelectedVersion(e.target.value as "v2" | "v3")}
               className={styles.versionSelect}
             >
               <option value="v2">v2 position</option>
-              <option value="v3" disabled>
-                v3 position
-              </option>
+              <option value="v3">v3 position</option>
               <option value="v4" disabled>
                 v4 position
               </option>
@@ -206,111 +188,55 @@ export const PoolCreate: React.FC = () => {
 
         <div className={styles.poolCreateRight}>
           <div className={styles.poolForm}>
-            {currentStep === 1 && (
-              <>
-                <div className={styles.formSection}>
-                  <h3>Select pair</h3>
-                  <p className={styles.sectionDescription}>
-                    Choose the tokens you want to provide liquidity for.
-                  </p>
-                  <div className={styles.tokenPairSelectors}>
-                    <div className={styles.tokenSelectorContainer}>
-                      <TokenSelector
-                        selectedToken={tokenA}
-                        onTokenSelect={setTokenA}
-                        otherSelectedToken={tokenB}
-                      />
-                    </div>
-                    <div className={styles.tokenSelectorContainer}>
-                      <TokenSelector
-                        selectedToken={tokenB}
-                        onTokenSelect={setTokenB}
-                        otherSelectedToken={tokenA}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.formSection}>
-                  <h3>Fee tier</h3>
-                  <p className={styles.sectionDescription}>
-                    The amount earned providing liquidity.
-                  </p>
-                  <div className={styles.feeTierContainer}>
-                    <div className={styles.feeTierSelected}>
-                      <div className={styles.feeTierInfo}>
-                        <span className={styles.feeTierPercentage}>
-                          0.30% fee tier
-                        </span>
-                      </div>
-                      <div className={styles.feeTierDescription}>
-                        The % you will earn in fees
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {renderActionButton()}
-              </>
-            )}
-
-            {currentStep === 2 && (
-              <>
-                <div className={styles.formSection}>
-                  <h3>Deposit amounts</h3>
-                  <div className={styles.tokenPairContainer}>
-                    <TokenInputContainer
-                      selectedToken={tokenA}
-                      amount={amountA}
-                      balance={balanceA}
-                      onTokenSelect={() => {}} // Disabled in step 2
-                      onAmountChange={setAmountA}
-                      onMaxClick={setMaxAmountA}
-                      otherSelectedToken={tokenB}
-                      disableTokenSelector={true}
-                      containerClassName={styles.tokenInputContainer}
-                    />
-                    <div className={styles.plusContainer}>
-                      <div className={styles.plusIcon}>+</div>
-                    </div>
-                    <TokenInputContainer
-                      selectedToken={tokenB}
-                      amount={amountB}
-                      balance={balanceB}
-                      onTokenSelect={() => {}} // Disabled in step 2
-                      onAmountChange={setAmountB}
-                      onMaxClick={setMaxAmountB}
-                      otherSelectedToken={tokenA}
-                      disableTokenSelector={true}
-                      containerClassName={styles.tokenInputContainer}
-                    />
-                  </div>
-                </div>
-                {tokenA && tokenB && (
-                  <div className={styles.formSection}>
-                    <h3>Pool Preview</h3>
-                    <div className={styles.poolPreview}>
-                      <div className={styles.poolPair}>
-                        <span>
-                          {tokenA.symbol} / {tokenB.symbol}
-                        </span>
-                        <span className={styles.feeBadge}>{v2FeeTier}%</span>
-                      </div>
-                      {amountA && amountB && (
-                        <div className={styles.poolRatio}>
-                          <div>
-                            Initial Price: 1 {tokenA.symbol} ={" "}
-                            {(
-                              parseFloat(amountB) / parseFloat(amountA)
-                            ).toFixed(1)}{" "}
-                            {tokenB.symbol}
-                          </div>
-                          <div>Your Pool Share: 100%</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {renderActionButton()}
-              </>
+            {selectedVersion === "v2" ? (
+              <V2PoolCreate
+                currentStep={currentStep}
+                onContinue={handleContinue}
+                tokenA={tokenA}
+                tokenB={tokenB}
+                onTokenASelect={setTokenA}
+                onTokenBSelect={setTokenB}
+                amountA={amountA}
+                amountB={amountB}
+                onAmountAChange={setAmountA}
+                onAmountBChange={setAmountB}
+                onMaxAmountA={setMaxAmountA}
+                onMaxAmountB={setMaxAmountB}
+                balanceA={balanceA}
+                balanceB={balanceB}
+                onCreatePool={v2Logic.actions.handleCreatePool}
+                isConfirming={isConfirming}
+                isSequenceRunning={v2Logic.state.isSequenceRunning}
+                transactionSteps={v2Logic.state.transactionSteps}
+              />
+            ) : (
+              <V3PoolCreate
+                currentStep={currentStep}
+                onContinue={handleContinue}
+                tokenA={tokenA}
+                tokenB={tokenB}
+                onTokenASelect={setTokenA}
+                onTokenBSelect={setTokenB}
+                amountA={amountA}
+                amountB={amountB}
+                onAmountAChange={setAmountA}
+                onAmountBChange={setAmountB}
+                onMaxAmountA={setMaxAmountA}
+                onMaxAmountB={setMaxAmountB}
+                balanceA={balanceA}
+                balanceB={balanceB}
+                needsApprovalA={needsApprovalA}
+                needsApprovalB={needsApprovalB}
+                onApproveA={handleApproveTokenA}
+                onApproveB={handleApproveTokenB}
+                canCreatePool={canCreatePool}
+                onCreatePool={v3Logic.actions.handleCreatePool}
+                isConfirming={isConfirming}
+                selectedFeeTier={v3Logic.state.selectedFeeTier}
+                onFeeTierChange={v3Logic.actions.setSelectedFeeTier}
+                priceRangeSelection={v3Logic.state.priceRangeSelection}
+                onPriceRangeChange={v3Logic.actions.setPriceRangeSelection}
+              />
             )}
           </div>
         </div>

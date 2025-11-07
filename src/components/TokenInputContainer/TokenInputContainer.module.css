@@ -22,7 +22,6 @@
 
 .tokenInputRow:hover {
   border-color: var(--border-secondary);
-  background: var(--background-secondary);
 }
 
 .tokenInputRow:focus-within {

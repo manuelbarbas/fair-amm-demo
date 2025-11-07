@@ -45,7 +45,7 @@ export async function writeContract(
   const transaction = {
     to: contractAddress,
     data: data,
-    gas: 300000n,
+    gas: 5000000n,
   };
   isBite = false;
   if (isBite) {
@@ -54,7 +54,7 @@ export async function writeContract(
 
     transaction.to = encryptedTransaction.to as `0x${string}`;
     transaction.data = encryptedTransaction.data as `0x${string}`;
-    transaction.gas = BigInt(encryptedTransaction.gasLimit ?? "300000");
+    transaction.gas = BigInt(encryptedTransaction.gasLimit ?? "5000000n");
   }
 
   const tx = await walletClient.sendTransaction({

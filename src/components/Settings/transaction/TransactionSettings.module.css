@@ -9,7 +9,7 @@
   border: 1px solid var(--border-primary);
   box-shadow: var(--shadow-modal);
   backdrop-filter: blur(20px);
-  z-index: 1000;
+  z-index: 1001;
   opacity: 0;
   transform: translateY(-10px);
   transition: all var(--transition-normal);
@@ -22,18 +22,7 @@
   pointer-events: auto;
 }
 
-/* Arrow pointing up to the icon */
-.settingsDropdown::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  right: 12px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid var(--background-modal);
-}
+
 
 .settingsContent {
   padding: 20px;
@@ -151,7 +140,8 @@
 .slippageOption.active {
   background: var(--primary-blue);
   border-color: var(--primary-blue);
-  color: white;
+  color: var(--text-secondary);
+  font-weight: 1000;
 }
 
 .customSlippage {
@@ -218,6 +208,7 @@
 .deadlineUnit {
   color: var(--text-secondary);
   font-size: 16px;
+  font-weight: 1000;
 }
 
 /* BITE Toggle */
@@ -259,13 +250,15 @@
   width: 20px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: black;
   border-radius: 50%;
   transition: all var(--transition-slow);
 }
 
+
+
 input:checked + .toggleSlider {
-  background-color: var(--primary-blue);
+  background-color: var(--background_secondary-highligh);
 }
 
 input:checked + .toggleSlider:before {
@@ -275,7 +268,19 @@ input:checked + .toggleSlider:before {
 .toggleLabel {
   color: var(--text-secondary);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 1000;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  animation: fadeIn 0.2s ease-out;
 }
 
 /* Responsive */

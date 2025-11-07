@@ -78,7 +78,9 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
       {!isApproved && fromAmount ? (
         <ActionButton
           variant="approve"
-          onClick={handleApprove}
+          onClick={() => {
+            handleApprove().catch(() => undefined);
+          }}
           loading={isConfirming}
           loadingText="Approving..."
           className={styles.approveButton}
@@ -88,7 +90,9 @@ const Swap: React.FC<SwapProps> = ({ settings }) => {
       ) : (
         <ActionButton
           variant="primary"
-          onClick={handleSwap}
+          onClick={() => {
+            handleSwap().catch(() => undefined);
+          }}
           disabled={!fromAmount || !toAmount}
           loading={isConfirming}
           loadingText="Swapping..."

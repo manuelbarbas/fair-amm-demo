@@ -39,7 +39,7 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--background-primary);
+  background: var(--accent-teal);
   border: 2px solid var(--border-primary);
   color: var(--primary-blue);
   font-size: 20px;
@@ -52,8 +52,8 @@
 }
 
 .switchButton:hover {
-  background: var(--primary-blue);
-  color: white;
+  background: var(--input-background);
+  color: var(--background-overlay);
   transform: rotate(180deg);
   box-shadow: var(--shadow-button);
 }

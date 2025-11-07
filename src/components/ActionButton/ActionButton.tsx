@@ -5,7 +5,7 @@ import styles from "./ActionButton.module.css";
 
 interface ActionButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick: () => void | Promise<void>;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "approve";
   className?: string;
@@ -25,7 +25,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const { isConnected } = useAccount();
   const { open } = useWeb3Modal();
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!isConnected) {
       // Open wallet connection modal
       open();
@@ -33,7 +33,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     }
     
     // Execute the actual action if wallet is connected
-    onClick();
+    try {
+      await onClick();
+    } catch (error) {
+      console.error("Action button error:", error);
+    }
   };
 
   const getButtonText = () => {

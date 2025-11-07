@@ -1,10 +1,15 @@
-import { useState, useEffect, useMemo } from "react";
-import { parseUnits, formatUnits } from "viem";
-import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from "wagmi";
-import { createSwapService, type Token, type SwapQuote } from "../services/swap";
-import { getTokens, getRouter, getAllTokensWithChain, createNativeToken, isNativeToken } from "../../../../config/config";
-import { needsSwapApproval, getSwapApprovalTarget } from "../../../../utils/tokenUtils";
-import type { TransactionSettingsData } from "../../../../hooks/useTransactionSettings";
+import { useState, useEffect, useMemo } from 'react';
+import { parseUnits, formatUnits, encodeFunctionData } from 'viem';
+import { useAccount, useWaitForTransactionReceipt, useChainId, useWalletClient, usePublicClient } from 'wagmi';
+import { UniswapService, type BestQuoteResult, type UniversalSwapOptions, type QuoteVersion } from '../../../../lib/uniswap';
+import { getTokens, createNativeToken, getPermit2Address, getRouter, getV3SwapRouterAddress, type TokenConfig } from '../../../../config/config';
+import type { TransactionSettingsData } from '../../../../hooks/useTransactionSettings';
+import { ERC20_ABI } from '../../../../abi/ERC20';
+
+// Helper function to check if a token is native (has zero address)
+const isNativeToken = (token: TokenConfig): boolean => {
+  return token.address === '0x0000000000000000000000000000000000000000';
+};
 
 export const useSwap = (swapSettings: TransactionSettingsData) => {
   const { address } = useAccount();
@@ -13,231 +18,288 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
   const publicClient = usePublicClient();
 
   const chainTokens = getTokens(chainId);
-  const router = getRouter(chainId);
 
   // State
-  const [fromToken, setFromToken] = useState<Token | null>(null);
-  const [toToken, setToToken] = useState<Token | null>(null);
-  const [fromAmount, setFromAmount] = useState("");
-  const [toAmount, setToAmount] = useState("");
+  const [fromToken, setFromToken] = useState<TokenConfig | null>(null);
+  const [toToken, setToToken] = useState<TokenConfig | null>(null);
+  const [fromAmount, setFromAmount] = useState('');
+  const [toAmount, setToAmount] = useState('');
   const [isApproved, setIsApproved] = useState(false);
   const [allowance, setAllowance] = useState<bigint>(0n);
   const [balance, setBalance] = useState<bigint>(0n);
   const [balanceTo, setBalanceTo] = useState<bigint>(0n);
-  const [quote, setQuote] = useState<SwapQuote | null>(null);
-  const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
+  const [quote, setQuote] = useState<BestQuoteResult | null>(null);
+  const [swapHash, setSwapHash] = useState<`0x${string}` | undefined>(undefined);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
 
   // Create service instance
-  const swapService = useMemo(() => {
+  const uniswapService = useMemo(() => {
     if (!publicClient) return null;
-    return createSwapService(publicClient, walletClient);
+    return UniswapService.create(publicClient, walletClient || undefined);
   }, [publicClient, walletClient]);
+
+  const approvalTarget = useMemo<`0x${string}` | undefined>(() => {
+    if (!chainId) return undefined;
+
+    const resolveTarget = (version?: QuoteVersion | undefined): `0x${string}` | undefined => {
+      if (version === 'v2') {
+        return getRouter(chainId);
+      }
+      if (version === 'v3') {
+        return getV3SwapRouterAddress(chainId);
+      }
+      return getRouter(chainId) ?? getV3SwapRouterAddress(chainId) ?? getPermit2Address(chainId);
+    };
+
+    return resolveTarget(quote?.quote.version);
+  }, [chainId, quote?.quote.version]);
 
   // Wait for transaction receipt
   const { isLoading: isTxConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+    hash: swapHash,
   });
 
   // Initialize tokens when chain changes
   useEffect(() => {
-    // Get native token for this chain
-    const nativeToken = createNativeToken(chainId);
+    const nativeTokenConfig = createNativeToken(chainId);
     const tokens = Object.values(chainTokens);
-    
-    if (nativeToken && tokens.length >= 1) {
-      // Default: Native token → First ERC20 token
-      setFromToken(nativeToken);
-      setToToken(tokens[0]);
+
+    if (nativeTokenConfig && tokens.length >= 1) {
+      setFromToken(nativeTokenConfig);
+      setToToken(tokens[0] as TokenConfig);
     } else if (tokens.length >= 2) {
-      // Fallback: First two ERC20 tokens
-      setFromToken(tokens[0]);
-      setToToken(tokens[1]);
+      setFromToken(tokens[0] as TokenConfig);
+      setToToken(tokens[1] as TokenConfig);
     }
-  }, [chainTokens, chainId]);
-
-  // Fetch allowance (skip for tokens that don't need approval)
-  useEffect(() => {
-    const fetchAllowance = async () => {
-      if (!swapService || !fromToken || !router || !address) return;
-      
-      // Check if this swap needs approval using shared utility
-      if (!needsSwapApproval(fromToken, toToken, chainId)) {
-        setAllowance(BigInt(Number.MAX_SAFE_INTEGER)); // Set to max to indicate no approval needed
-        return;
-      }
-      
-      // Get the correct approval target (router vs WETH contract)
-      const approvalTarget = getSwapApprovalTarget(fromToken, toToken, router, chainId);
-      if (!approvalTarget) {
-        setAllowance(0n);
-        return;
-      }
-      
-      const allowanceAmount = await swapService.getTokenAllowance(
-        fromToken.address,
-        address,
-        approvalTarget
-      );
-      setAllowance(allowanceAmount);
-    };
-
-    fetchAllowance();
-  }, [swapService, fromToken, toToken, router, address, chainId]);
+  }, [chainId, chainTokens]);
 
   // Fetch balances
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!swapService || !address) return;
+      if (!publicClient || !address) return;
+
+      const fetchBalance = async (token: TokenConfig): Promise<bigint> => {
+        try {
+          if (isNativeToken(token)) {
+            // Native token
+            return await publicClient.getBalance({ address });
+          } else {
+            // ERC20 token
+            return (await publicClient.readContract({
+              address: token.address,
+              abi: ERC20_ABI,
+              functionName: 'balanceOf',
+              args: [address],
+            })) as bigint;
+          }
+        } catch (error) {
+          console.error(`Error fetching balance for ${token.symbol}:`, error);
+          return 0n;
+        }
+      };
 
       if (fromToken) {
-        const fromBalance = await swapService.getTokenBalance(fromToken, address);
+        const fromBalance = await fetchBalance(fromToken);
         setBalance(fromBalance);
       }
-
       if (toToken) {
-        const toBalance = await swapService.getTokenBalance(toToken, address);
+        const toBalance = await fetchBalance(toToken);
         setBalanceTo(toBalance);
       }
     };
 
     fetchBalances();
-  }, [swapService, fromToken, toToken, address, isConfirmed]);
+  }, [publicClient, address, fromToken, toToken, isConfirmed]);
 
-  // Get swap quote
+  // Check token allowance for the active swap target
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (!publicClient || !address || !fromToken || isNativeToken(fromToken)) {
+        setAllowance(BigInt(Number.MAX_SAFE_INTEGER));
+        setIsApproved(true);
+        return;
+      }
+
+      if (!approvalTarget) {
+        console.warn('Approval target not found for chain', chainId, 'and quote version', quote?.quote.version);
+        setAllowance(0n);
+        setIsApproved(false);
+        return;
+      }
+
+      try {
+        const allowanceAmount = (await publicClient.readContract({
+          address: fromToken.address,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [address, approvalTarget],
+        })) as bigint;
+
+        setAllowance(allowanceAmount);
+        
+        // Check if allowance is sufficient
+        if (fromAmount && parseFloat(fromAmount) > 0) {
+          const requiredAmount = parseUnits(fromAmount, fromToken.decimals);
+          setIsApproved(allowanceAmount >= requiredAmount);
+        } else {
+          setIsApproved(allowanceAmount > 0n);
+        }
+      } catch (error) {
+        console.error('Error checking allowance:', error);
+        setAllowance(0n);
+        setIsApproved(false);
+      }
+    };
+
+    checkAllowance();
+  }, [publicClient, address, fromToken, chainId, fromAmount, isConfirmed, approvalTarget, quote?.quote.version]);
+
+  // Get swap quote with debouncing
   useEffect(() => {
     const fetchQuote = async () => {
-      if (!swapService || !router || !fromAmount || !fromToken || !toToken) {
+      if (!uniswapService || !fromAmount || !fromToken || !toToken || parseFloat(fromAmount) <= 0) {
         setQuote(null);
-        setToAmount("");
+        setToAmount('');
         return;
       }
 
       setIsLoadingQuote(true);
       try {
-        const swapQuote = await swapService.getSwapQuote(
-          fromAmount,
+        const swapQuote = await uniswapService.getQuoteFromTokenConfig(
           fromToken,
           toToken,
-          router,
-          chainId,
-          swapSettings.slippage.value
+          fromAmount
         );
-        
+
         if (swapQuote) {
           setQuote(swapQuote);
-          const formattedAmount = swapService.formatTokenAmount(
-            swapQuote.amountOut,
-            toToken.decimals,
-            3
-          );
-          setToAmount(formattedAmount);
+          // Format the output amount from the best quote
+          const outputAmount = swapQuote.quote.amountOut;
+          const formattedAmount = formatUnits(outputAmount, toToken.decimals);
+          setToAmount(parseFloat(formattedAmount).toFixed(6));
         } else {
           setQuote(null);
-          setToAmount("");
+          setToAmount('');
         }
       } catch (error) {
-        console.error("Error fetching quote:", error);
+        console.error('Error fetching quote:', error);
         setQuote(null);
-        setToAmount("");
+        setToAmount('');
       } finally {
         setIsLoadingQuote(false);
       }
     };
 
-    fetchQuote();
-  }, [swapService, router, fromAmount, fromToken, toToken]);
-
-  // Update approval status
-  useEffect(() => {
-    if (!fromAmount || !fromToken) {
-      setIsApproved(false);
-      return;
-    }
-
-    // If no approval is needed for this swap type, set to approved
-    if (!needsSwapApproval(fromToken, toToken, chainId)) {
-      setIsApproved(true);
-      return;
-    }
-
-    // For swaps that need approval, check the allowance
-    if (!swapService || !allowance) {
-      setIsApproved(false);
-      return;
-    }
-
-    const requiredAmount = parseUnits(fromAmount, fromToken.decimals);
-    setIsApproved(!swapService.isApprovalNeeded(allowance, requiredAmount));
-  }, [swapService, allowance, fromAmount, fromToken, toToken, chainId]);
+    const timeoutId = setTimeout(fetchQuote, 500);
+    return () => clearTimeout(timeoutId);
+  }, [uniswapService, fromAmount, fromToken, toToken]);
 
   // Reset confirming state when transaction is confirmed or fails
   useEffect(() => {
-    if (isConfirmed || isTxConfirming === false) {
+    if (isConfirmed) {
+      setIsConfirming(false);
+      // Reset form after successful swap
+      setFromAmount('');
+      setToAmount('');
+      setQuote(null);
+    }
+    if (isTxConfirming === false && !isConfirmed) {
       setIsConfirming(false);
     }
   }, [isConfirmed, isTxConfirming]);
 
   // Actions
   const handleApprove = async () => {
-    if (!swapService || !fromToken || !fromAmount || !router) return;
-
-    // Get the correct approval target (router vs WETH contract)
-    const approvalTarget = getSwapApprovalTarget(fromToken, toToken, router, chainId);
-    if (!approvalTarget) {
-      console.error("No approval target found");
+    if (!walletClient) {
+      console.log('Wallet client not available for approval');
       return;
+    }
+
+    if (!fromToken || isNativeToken(fromToken)) {
+      console.log('No approval needed for native token');
+      return handleSwap();
+    }
+
+    if (!approvalTarget) {
+      throw new Error(`Approval target not found for chain ${chainId}`);
     }
 
     try {
       setIsConfirming(true);
-      const amount = parseUnits(fromAmount, fromToken.decimals);
-      const txHash = await swapService.approveToken(fromToken.address, approvalTarget, amount, swapSettings?.biteEncryption);
-      setHash(txHash);
+      
+      // Approve maximum amount to the swap contract
+      const maxAmount = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+      
+      const txHash = await walletClient.sendTransaction({
+        account: walletClient.account!,
+        to: fromToken.address as `0x${string}`,
+        data: encodeFunctionData({
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [approvalTarget, maxAmount],
+        }),
+        chain: walletClient.chain,
+      });
+
+      if (!publicClient) {
+        throw new Error('Public client not available to confirm approval');
+      }
+
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+      setAllowance(maxAmount);
+      setIsApproved(true);
+
+      await handleSwap();
     } catch (error) {
-      console.error("Error approving token:", error);
+      console.error('Error approving token:', error);
       setIsConfirming(false);
+      throw error;
     }
   };
 
   const handleSwap = async () => {
-    if (!swapService || !fromToken || !toToken || !fromAmount || !quote || !address || !router) {
+    if (!uniswapService || !quote || !address || !fromToken) {
+      return;
+    }
+
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      setIsConfirming(false);
       return;
     }
 
     try {
       setIsConfirming(true);
-      const amountIn = parseUnits(fromAmount, fromToken.decimals);
-      
-      const txHash = await swapService.executeSwap(
-        amountIn,
-        quote.minimumAmountOut,
-        fromToken,
-        toToken,
-        router,
-        address,
-        chainId,
-        swapSettings?.deadline,
-        swapSettings?.biteEncryption
-      );
-      setHash(txHash);
+      const swapOptions: UniversalSwapOptions = {
+        slippageTolerance: swapSettings.slippage.value,
+        deadline: Math.floor(Date.now() / 1000) + swapSettings.deadline * 60,
+        recipient: address,
+        amountIn: parseUnits(fromAmount, fromToken.decimals),
+      };
+
+      const txHash = await uniswapService.executeSwap(quote.quote, swapOptions);
+      setSwapHash(txHash);
     } catch (error) {
-      console.error("Error swapping tokens:", error);
+      console.error('Error swapping tokens:', error);
       setIsConfirming(false);
+      throw error;
     }
   };
 
   const handleSwitchTokens = () => {
-    setFromToken(toToken);
-    setToToken(fromToken);
+    const oldFromToken = fromToken;
+    const oldToToken = toToken;
+    
+    setFromToken(oldToToken);
+    setToToken(oldFromToken);
     setFromAmount(toAmount);
-    setToAmount("");
+    setToAmount('');
     setQuote(null);
   };
 
   const setMaxFromAmount = () => {
-    if (fromToken && balance) {
+    if (fromToken && balance && balance > 0n) {
       const maxAmount = formatUnits(balance, fromToken.decimals);
       setFromAmount(maxAmount);
     }
@@ -250,13 +312,15 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
     fromAmount,
     toAmount,
     isApproved,
+    allowance,
     balance,
     balanceTo,
     quote,
     isConfirming,
     isConfirmed,
     isLoadingQuote,
-    
+    hash: swapHash,
+
     // Actions
     setFromToken,
     setToToken,
@@ -265,8 +329,5 @@ export const useSwap = (swapSettings: TransactionSettingsData) => {
     handleSwap,
     handleSwitchTokens,
     setMaxFromAmount,
-    
-    // Utils
-    swapService,
   };
 };

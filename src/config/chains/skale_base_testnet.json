@@ -1,0 +1,47 @@
+{
+  "id": 324705682,
+  "name": "SKALE Base Testnet",
+  "displayName": "SKALE Base Testnet",
+  "nativeCurrency": {
+    "name": "sFUEL",
+    "symbol": "sFUEL",
+    "decimals": 18
+  },
+  "rpcUrls": {
+    "default": {
+      "http": ["https://base-sepolia-testnet.skalenodes.com/v1/jubilant-horrible-ancha"]
+    }
+  },
+  "blockExplorers": {
+    "default": {
+      "name": "SKALE Base Testnet Explorer",
+      "url": "https://base-sepolia-testnet-explorer.skalenodes.com/"
+    }
+  },
+  "v2_router": "0xF68B4E327191Faa4a44AE82444CbFea8BB26BF54",
+  "v3_swap_router": "0xb6fbddb58Cbc8FB53d4b47A99a63030DEDEB93CA",
+  "v3_nft_positionManager": "0x0df7162505788222cad05808CD58C4068E31d001",
+  "v3_quoter":"0x349055ca785da442F4867317fbE90dD514A86062",
+  "v3_multicall":"0x868f102bE5787D1A24124238F7b50491cae2CDe1",
+  "permit2":"0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  "tokens": {
+    "SKL": {
+      "address": "0xaf2e0ff5b5f51553fdb34ce7f04a6c3201cee57b",
+      "decimals": 18,
+      "symbol": "SKL",
+      "name": "SKL"
+    },
+    "USDT": {
+      "address": "0x3ca0a49f511c2c89c4dcbbf1731120d8919050bf",
+      "decimals": 6,
+      "symbol": "USDT",
+      "name": "USDT"
+    },
+    "WBTC": {
+      "address": "0x4512eaCD4186b025186e1cF6cc0D89497c530e87",
+      "decimals": 8,
+      "symbol": "WBTC",
+      "name": "WBTC"
+    }
+  }
+}

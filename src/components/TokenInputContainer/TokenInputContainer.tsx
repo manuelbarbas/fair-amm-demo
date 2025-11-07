@@ -3,7 +3,7 @@ import { formatUnits } from "viem";
 import TokenSelector from "../TokenSelector/TokenSelector";
 import { BalanceWalletIcon } from "../UI";
 import { useTokenUSDValue } from "../../hooks/useTokenUSDValue";
-import type { Token } from "../../types/token";
+import type { Token } from "@/types/token";
 import styles from "./TokenInputContainer.module.css";
 import { formatValue } from "../../utils";
 

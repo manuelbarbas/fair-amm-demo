@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchTokenPrice, calculateUSDValue, hasPriceSupport, type TokenPrice } from '../lib/pythService';
+import { fetchTokenPrice, calculateUSDValue, hasPriceSupport, type TokenPrice } from '../lib/pyth/pythService';
 import type { Token } from '../types/token';
 
 interface UseTokenUSDValueParams {

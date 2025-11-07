@@ -71,11 +71,20 @@ const TransactionSettings: React.FC<TransactionSettingsProps> = ({
 
   // 2. Replace all className strings with {styles.className}
   return (
-    <div
-      className={`${styles.settingsDropdown} ${isOpen ? styles.open : ""}`}
-      ref={modalRef}
-    >
-      <div className={styles.settingsContent}>
+    <>
+      {/* Overlay that appears when settings are open */}
+      {isOpen && (
+        <div 
+          className={styles.modalOverlay}
+          onClick={closeSettings}
+        />
+      )}
+      
+      <div
+        className={`${styles.settingsDropdown} ${isOpen ? styles.open : ""}`}
+        ref={modalRef}
+      >
+        <div className={styles.settingsContent}>
         {/* Max Slippage */}
         <div className={styles.settingGroup}>
           <div className={styles.settingLabel}>
@@ -184,6 +193,7 @@ const TransactionSettings: React.FC<TransactionSettingsProps> = ({
         {children}
       </div>
     </div>
+    </>
   );
 };
 

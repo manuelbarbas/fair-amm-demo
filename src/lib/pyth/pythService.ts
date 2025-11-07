@@ -14,6 +14,7 @@ export const PRICE_FEED_IDS = {
   USDT: null,
   // FAIR token hardcoded to 5 USD (no price feed available yet)
   FAIR: null,
+  WBTC: '0xc9d8b075a5c69303365ae23633d4e085199bf5c520a3b90fed1322a0342ffc33'
 } as const;
 
 // Token symbols that have fixed USD values

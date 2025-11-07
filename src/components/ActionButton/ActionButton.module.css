@@ -30,7 +30,7 @@
 
 /* Primary variant (main action buttons like Swap, Create Pool) */
 .actionButton.primary {
-  background: var(--button-primary-bg);
+  background: var(--accent-teal);
   color: var(--button-primary-text);
 }
 
@@ -40,13 +40,12 @@
 
 /* Secondary variant (less important actions) */
 .actionButton.secondary {
-  background: var(--background-secondary);
+  background: var(--accent-teal);
   color: var(--text-primary);
   border: 1px solid var(--border-primary);
 }
 
 .actionButton.secondary:hover:not(.disabled):not(.loading) {
-  background: var(--background-tertiary);
   border-color: var(--border-secondary);
 }
 

@@ -25,7 +25,7 @@
  * Individual buttons for each trade mode (Swap, Bridge).
  */
 .nav button {
-  padding: 10px 20px;
+  padding: 8px 15px;
   background: transparent;
   color: var(--text-secondary);
   border: none;
@@ -42,13 +42,19 @@
  */
 .nav button:not(.active):hover {
   color: var(--text-primary);
+
 }
+
+.nav button.active:hover {
+  background: var(--text-background_secondary);
+}
+
 
 /*
  * Active state for the selected navigation button.
  */
 .nav button.active {
-  background: var(--background-primary);
+  background: var(--accent-teal);
   color: var(--text-primary);
   font-weight: 600;
   box-shadow: var(--shadow-card);

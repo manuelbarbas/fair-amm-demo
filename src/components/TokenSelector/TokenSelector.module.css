@@ -38,9 +38,6 @@
   font-size: 16px;
 }
 
-.selectedToken:hover .tokenSymbol {
-  color: white;
-}
 
 .selectedToken .arrow {
   color: var(--text-secondary);
@@ -151,7 +148,7 @@
   align-items: center;
   gap: 8px;
   background: transparent;
-  border: 1px solid var(--border-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 20px;
   padding: 8px 16px;
   color: var(--text-secondary);
@@ -169,9 +166,9 @@
 }
 
 .chainFilterButton.active {
-  background: var(--primary-blue);
+  background: var(--background-secondary);
   border-color: var(--primary-blue);
-  color: white;
+  color: var(--text-primary);
 }
 
 .chainBadge {
@@ -179,7 +176,7 @@
   height: 20px;
   border-radius: 50%;
   background: var(--primary-blue);
-  color: white;
+  color: rgb(6, 6, 6);
   font-size: 12px;
   font-weight: 600;
   display: flex;

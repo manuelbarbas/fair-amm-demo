@@ -54,28 +54,34 @@ const WalletButton: React.FC = () => {
   }
 
   return (
-    <div className={styles.walletButtonContainer} ref={dropdownRef}>
-      <button
-        className={styles.connectedWalletButton}
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-      >
-        <div className={styles.walletConnectionInfo}>
-          {currentChain && (
-            <span className={styles.chainName}>{currentChain.name}</span>
-          )}
-          <div className={styles.walletIconConnected}>
-            <SmallWallet />
-          </div>
-          <span className={styles.walletAddress}>{formatAddress(address)}</span>
-        </div>
-        <ArrowUp
-          className={`${styles.dropdownArrow} ${
-            isDropdownOpen ? styles.open : ""
-          }`}
-        />
-      </button>
-
+    <>
+      {/* Overlay that appears when wallet dropdown is open */}
       {isDropdownOpen && (
+        <div 
+          className={styles.walletOverlay}
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
+      
+      <div className={styles.walletButtonContainer} ref={dropdownRef}>
+        <button
+          className={styles.connectedWalletButton}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+          <div className={styles.walletConnectionInfo}>
+            <div className={styles.walletIconConnected}>
+              <SmallWallet />
+            </div>
+            <span className={styles.walletAddress}>{formatAddress(address)}</span>
+          </div>
+          <ArrowUp
+            className={`${styles.dropdownArrow} ${
+              isDropdownOpen ? styles.open : ""
+            }`}
+          />
+        </button>
+
+        {isDropdownOpen && (
         <div className={styles.walletDropdown}>
           <div className={styles.walletDropdownItem}>
             <div className={styles.walletAddressFull}>
@@ -105,7 +111,8 @@ const WalletButton: React.FC = () => {
           </button>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
